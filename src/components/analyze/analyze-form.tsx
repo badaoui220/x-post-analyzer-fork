@@ -1,9 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { analyzePost } from '@/actions/analyze';
 import { getSuggestions } from '@/actions/suggestions';
 import type { AnalysisResult } from '@/actions/analyze';
@@ -13,8 +20,9 @@ import { SuggestionsGrid } from './suggestions-grid';
 import { ApiKeyDialog } from '../api-key-dialog';
 import { AnalysisSkeleton, SuggestionsSkeleton } from '../analysis-skeleton';
 import Cookies from 'js-cookie';
-import { ArrowUp, Loader2 } from 'lucide-react';
+import { ArrowUp, Loader2, Key } from 'lucide-react';
 import { toast } from 'sonner';
+import { DEFAULT_MODEL, AVAILABLE_MODELS, DEFAULT_API_KEY } from '@/config/openai';
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -38,11 +46,27 @@ export function AnalyzeForm() {
   const [suggestions, setSuggestions] = useState<Suggestion[] | null>(null);
   const [showApiKeyDialog, setShowApiKeyDialog] = useState(false);
   const [currentAnalyzing, setCurrentAnalyzing] = useState<string | null>(null);
+  const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL);
+  const [isUsingDefaultKey, setIsUsingDefaultKey] = useState(false);
+
+  useEffect(() => {
+    const storedModel = Cookies.get('openai-model');
+    if (storedModel) {
+      setSelectedModel(storedModel);
+    }
+    const savedApiKey = Cookies.get('openai-api-key');
+    setIsUsingDefaultKey(!savedApiKey);
+  }, []);
+
+  const handleModelChange = (model: string) => {
+    setSelectedModel(model);
+    Cookies.set('openai-model', model, { expires: 30 });
+  };
 
   const MAX_LENGTH = 280; // X's character limit
 
   const handleAnalyze = async (text: string = content, shouldGetSuggestions = true) => {
-    const apiKey = Cookies.get('openai-api-key');
+    const apiKey = Cookies.get('openai-api-key') || DEFAULT_API_KEY;
     if (!apiKey) {
       setShowApiKeyDialog(true);
       return;
@@ -90,7 +114,7 @@ export function AnalyzeForm() {
   };
 
   const handleReanalyze = async (text: string) => {
-    const apiKey = Cookies.get('openai-api-key');
+    const apiKey = Cookies.get('openai-api-key') || DEFAULT_API_KEY;
     if (!apiKey) {
       setShowApiKeyDialog(true);
       return;
@@ -144,8 +168,9 @@ export function AnalyzeForm() {
   };
 
   const handleApiKeySave = () => {
+    const savedApiKey = Cookies.get('openai-api-key');
+    setIsUsingDefaultKey(!savedApiKey);
     setShowApiKeyDialog(false);
-    handleAnalyze();
   };
 
   return (
@@ -190,7 +215,7 @@ export function AnalyzeForm() {
         >
           <AnimatePresence mode="wait">
             {!analysis && !isAnalyzing && (
-              <motion.div key="input" className="w-full" {...slideUp}>
+              <motion.div key="input" className="w-full space-y-4" {...slideUp}>
                 <Textarea
                   placeholder="What's on your mind? Paste or type your X post here..."
                   value={content}
@@ -207,20 +232,55 @@ export function AnalyzeForm() {
                 <div className="absolute right-3 top-3 text-sm text-white/40">
                   {content.length}/{MAX_LENGTH}
                 </div>
-                <div className="absolute bottom-3 right-3 mt-1 flex items-center justify-end">
-                  <Button
-                    onClick={() => handleAnalyze()}
-                    disabled={!content.trim() || isAnalyzing}
-                    variant="secondary"
-                    size="icon"
-                    className="group cursor-pointer"
-                  >
-                    {isAnalyzing ? (
-                      <Loader2 className="stroke-3 size-5 animate-spin" />
-                    ) : (
-                      <ArrowUp className="stroke-3 size-4 transition-transform group-hover:-translate-y-0.5" />
-                    )}
-                  </Button>
+                <div className="absolute bottom-6 mt-1 flex w-full items-center justify-between px-2">
+                  <div className="flex items-center gap-2">
+                    <Select
+                      value={selectedModel}
+                      onValueChange={handleModelChange}
+                      disabled={isAnalyzing || isUsingDefaultKey}
+                    >
+                      <SelectTrigger className="w-32 border-none bg-[#2a2a2a] text-white">
+                        <SelectValue placeholder="Select a model" />
+                      </SelectTrigger>
+                      <SelectContent className="border border-[#333] bg-[#1a1a1a] text-white">
+                        {AVAILABLE_MODELS.map(model => (
+                          <SelectItem
+                            key={model.id}
+                            value={model.id}
+                            className="cursor-pointer hover:bg-[#2a2a2a]"
+                            disabled={isUsingDefaultKey && model.id !== DEFAULT_MODEL}
+                          >
+                            {model.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowApiKeyDialog(true)}
+                      className="text-white/60 hover:bg-white/10 hover:text-white"
+                    >
+                      <Key className="h-4 w-4" />
+                      Own key
+                    </Button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      onClick={() => handleAnalyze()}
+                      disabled={!content.trim() || isAnalyzing}
+                      variant="secondary"
+                      size="icon"
+                      className="group cursor-pointer"
+                    >
+                      {isAnalyzing ? (
+                        <Loader2 className="stroke-3 size-5 animate-spin" />
+                      ) : (
+                        <ArrowUp className="stroke-3 size-4 transition-transform group-hover:-translate-y-0.5" />
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </motion.div>
             )}

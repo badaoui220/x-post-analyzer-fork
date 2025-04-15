@@ -2,7 +2,9 @@
 'use server';
 
 import OpenAI from 'openai';
+import Cookies from 'js-cookie';
 import type { AdvancedAnalytics } from './analyze';
+import { DEFAULT_MODEL } from '@/config/openai';
 
 export interface Suggestion {
   text: string;
@@ -20,6 +22,7 @@ export async function getSuggestions(content: string, apiKey: string): Promise<S
   }
 
   const openai = new OpenAI({ apiKey });
+  const model = Cookies.get('openai-model') || DEFAULT_MODEL;
 
   const messages = [
     {
@@ -89,7 +92,7 @@ export async function getSuggestions(content: string, apiKey: string): Promise<S
 
   try {
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4-turbo-preview',
+      model,
       messages: messages as any,
       temperature: 0.7,
       response_format: { type: 'json_object' },
