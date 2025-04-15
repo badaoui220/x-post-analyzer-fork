@@ -3,7 +3,7 @@
 
 import OpenAI from 'openai';
 
-interface AdvancedAnalytics {
+export interface AdvancedAnalytics {
   readability: {
     score: number;
     level: string;
@@ -41,21 +41,9 @@ export interface AnalysisResult {
     virality: number;
   };
   analytics: AdvancedAnalytics;
-  suggestions: Array<{
-    text: string;
-    scores: {
-      engagement: number;
-      friendliness: number;
-      virality: number;
-    };
-    analytics: AdvancedAnalytics;
-  }>;
 }
 
-export async function analyzePost(
-  content: string,
-  apiKey: string
-): Promise<AnalysisResult> {
+export async function analyzePost(content: string, apiKey: string): Promise<AnalysisResult> {
   if (!apiKey) {
     throw new Error('OpenAI API key is required');
   }
@@ -69,8 +57,7 @@ export async function analyzePost(
       1. Engagement score (0-100)
       2. Friendliness score (0-100)
       3. Virality score (0-100)
-      4. Three improved versions of the post with high scores, sound more natural, friendly, and engaging. Simplify the language so it's easy to read, and make it feel like a conversation. Focus on making the message feel relatable and warm. Keep spacing. The tone should feel like you're talking directly to a friend, use one emoji and no hashtags.
-      5. Advanced analytics including:
+      4. Advanced analytics including:
          - Readability analysis (score, level, grade-level description)
          - Sentiment analysis (score, type, key emotions)
          - Best posting time (time window, timezone, peak days)
@@ -114,18 +101,7 @@ export async function analyzePost(
             "optimal": string[],
             "trending": string[]
           }
-        },
-        "suggestions": [
-          {
-            "text": string,
-            "scores": {
-              "engagement": number,
-              "friendliness": number,
-              "virality": number
-            },
-            "analytics": {same as above}
-          }
-        ]
+        }
       }`,
     },
     {

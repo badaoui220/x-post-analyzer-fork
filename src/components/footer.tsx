@@ -1,22 +1,10 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import Link from 'next/link';
-
-const fadeIn = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5 },
-};
 
 export function Footer() {
   return (
-    <motion.footer
-      className="monospace w-full py-6"
-      initial="initial"
-      animate="animate"
-      variants={fadeIn}
-    >
+    <footer className="monospace w-full py-6">
       <div className="container mx-auto px-4">
         <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
           <div className="text-sm text-white/60">
@@ -55,6 +43,6 @@ export function Footer() {
           </div>
         </div>
       </div>
-    </motion.footer>
+    </footer>
   );
 }

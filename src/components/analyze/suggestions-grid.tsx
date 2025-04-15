@@ -19,6 +19,7 @@ import {
   Smile,
   ChevronDown,
   ChevronUp,
+  RefreshCw,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useState } from 'react';
@@ -33,9 +34,17 @@ interface SuggestionsGridProps {
       virality: number;
     };
   }[];
+  onReanalyze: (text: string) => void;
+  isAnalyzing: boolean;
+  currentAnalyzing: string | null;
 }
 
-export function SuggestionsGrid({ suggestions }: SuggestionsGridProps) {
+export function SuggestionsGrid({
+  suggestions,
+  onReanalyze,
+  isAnalyzing,
+  currentAnalyzing,
+}: SuggestionsGridProps) {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
@@ -67,6 +76,7 @@ export function SuggestionsGrid({ suggestions }: SuggestionsGridProps) {
       {suggestions.map((suggestion, index) => {
         const analytics = suggestion.analytics;
         const isExpanded = expandedIndex === index;
+        const isCurrentlyAnalyzing = currentAnalyzing === suggestion.text;
 
         const globalScore = Math.round(
           (suggestion?.scores.engagement +
@@ -100,6 +110,36 @@ export function SuggestionsGrid({ suggestions }: SuggestionsGridProps) {
                 {/* Post Metadata */}
                 <div className="mb-4 text-sm text-gray-500">
                   12:00 PM · {new Date().toLocaleDateString()}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="mb-4 flex items-center justify-between">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="hover:bg-primary cursor-pointer text-white/60 hover:text-white"
+                    onClick={() => handleCopy(suggestion.text, index)}
+                  >
+                    {copiedIndex === index ? (
+                      <Check className="mr-2 h-4 w-4" />
+                    ) : (
+                      <Copy className="mr-2 h-4 w-4" />
+                    )}
+                    {copiedIndex === index ? 'Copied!' : 'Copy'}
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="hover:bg-primary cursor-pointer text-white/60 hover:text-white"
+                    onClick={() => onReanalyze(suggestion.text)}
+                    disabled={isAnalyzing}
+                  >
+                    <RefreshCw
+                      className={`mr-2 h-4 w-4 ${isCurrentlyAnalyzing ? 'animate-spin' : ''}`}
+                    />
+                    {isCurrentlyAnalyzing ? 'Analyzing...' : 'Re-analyze'}
+                  </Button>
                 </div>
 
                 {/* Engagement Metrics */}
@@ -242,25 +282,6 @@ export function SuggestionsGrid({ suggestions }: SuggestionsGridProps) {
                 </motion.div>
               )}
             </div>
-
-            {/* Copy Button */}
-            <Button
-              size="sm"
-              className="absolute right-4 top-4 h-8 cursor-pointer border border-white/20 bg-transparent text-xs"
-              onClick={() => handleCopy(suggestion.text, index)}
-            >
-              {copiedIndex === index ? (
-                <>
-                  <Check className="mr-1 h-4 w-4" />
-                  Copied
-                </>
-              ) : (
-                <>
-                  <Copy className="mr-1 h-4 w-4" />
-                  Copy
-                </>
-              )}
-            </Button>
           </motion.div>
         );
       })}
