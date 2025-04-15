@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     siteName: 'X Post Analyzer',
     images: [
       {
-        url: '/screenshot.png',
+        url: 'https://x-post-analyzer.vercel.app/screenshot.png',
         width: 1200,
         height: 630,
         alt: 'X Post Analyzer - AI-Powered Post Analysis',
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
     title: 'X Post Analyzer - AI-Powered Post Analysis',
     description:
       'Get AI-powered insights to make your X (Twitter) posts more engaging, friendly, and viral.',
-    images: ['/screenshot.png'],
+    images: ['https://x-post-analyzer.vercel.app/screenshot.png'],
     creator: '@audiencon',
   },
   robots: {
