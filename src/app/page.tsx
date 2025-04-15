@@ -2,7 +2,7 @@ import { AnalyzeForm } from '@/components/analyze/analyze-form';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Home',
+  title: 'X Post Analyzer - AI-Powered Post Analysis',
   description:
     'Analyze your X (Twitter) posts with AI to improve engagement, friendliness, and virality. Get instant feedback and suggestions for better content.',
   openGraph: {

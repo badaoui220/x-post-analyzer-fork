@@ -27,9 +27,9 @@ export const metadata: Metadata = {
     'social media',
     'content optimization',
   ],
-  authors: [{ name: 'Said BADAOUI', url: 'https://github.com/audiencon' }],
-  creator: 'Said BADAOUI',
-  publisher: 'Said BADAOUI',
+  authors: [{ name: 'Audiencon', url: 'https://github.com/audiencon' }],
+  creator: 'Audiencon',
+  publisher: 'Audiencon',
   formatDetection: {
     email: false,
     address: false,
