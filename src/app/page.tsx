@@ -5,16 +5,6 @@ export const metadata: Metadata = {
   title: 'X Post Analyzer - AI-Powered Post Analysis',
   description:
     'Analyze your X (Twitter) posts with AI to improve engagement, friendliness, and virality. Get instant feedback and suggestions for better content.',
-  openGraph: {
-    title: 'X Post Analyzer - AI-Powered Post Analysis',
-    description:
-      'Analyze your X (Twitter) posts with AI to improve engagement, friendliness, and virality.',
-  },
-  twitter: {
-    title: 'X Post Analyzer - AI-Powered Post Analysis',
-    description:
-      'Analyze your X (Twitter) posts with AI to improve engagement, friendliness, and virality.',
-  },
 };
 
 export default async function Home() {

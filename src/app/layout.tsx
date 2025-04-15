@@ -10,7 +10,11 @@ const inter = Inter({
   variable: '--font-inter',
 });
 
+const baseUrl = 'https://x-post-analyzer.vercel.app';
+const ogImageUrl = `${baseUrl}/og.png`;
+
 export const metadata: Metadata = {
+  metadataBase: new URL(baseUrl),
   title: {
     default: 'X Post Analyzer - AI-Powered Post Analysis',
     template: '%s | X Post Analyzer',
@@ -35,21 +39,20 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://x-post-analyzer.vercel.app'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://x-post-analyzer.vercel.app',
+    url: baseUrl,
     title: 'X Post Analyzer - AI-Powered Post Analysis',
     description:
       'Get AI-powered insights to make your X (Twitter) posts more engaging, friendly, and viral.',
     siteName: 'X Post Analyzer',
     images: [
       {
-        url: 'https://x-post-analyzer.vercel.app/screenshot.png',
+        url: ogImageUrl,
         width: 1200,
         height: 630,
         alt: 'X Post Analyzer - AI-Powered Post Analysis',
@@ -61,7 +64,7 @@ export const metadata: Metadata = {
     title: 'X Post Analyzer - AI-Powered Post Analysis',
     description:
       'Get AI-powered insights to make your X (Twitter) posts more engaging, friendly, and viral.',
-    images: ['https://x-post-analyzer.vercel.app/screenshot.png'],
+    images: [ogImageUrl],
     creator: '@audiencon',
   },
   robots: {
