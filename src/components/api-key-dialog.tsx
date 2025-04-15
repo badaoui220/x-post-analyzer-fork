@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -22,9 +22,17 @@ interface ApiKeyDialogProps {
 export function ApiKeyDialog({ open, onClose, onSave }: ApiKeyDialogProps) {
   const [apiKey, setApiKey] = useState('');
 
+  useEffect(() => {
+    const storedKey = Cookies.get('openai-api-key');
+    if (storedKey) {
+      setApiKey(storedKey);
+    }
+  }, []);
+
   const handleSave = () => {
     if (!apiKey.trim()) return;
-    Cookies.set('openai-api-key', apiKey, { expires: 30 }); // Store for 30 days
+
+    Cookies.set('openai-api-key', apiKey, { expires: 30 });
     onSave();
   };
 

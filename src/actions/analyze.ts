@@ -2,6 +2,8 @@
 'use server';
 
 import OpenAI from 'openai';
+import Cookies from 'js-cookie';
+import { DEFAULT_MODEL } from '@/config/openai';
 
 export interface AdvancedAnalytics {
   readability: {
@@ -49,6 +51,7 @@ export async function analyzePost(content: string, apiKey: string): Promise<Anal
   }
 
   const openai = new OpenAI({ apiKey });
+  const model = Cookies.get('openai-model') || DEFAULT_MODEL;
 
   const messages = [
     {
@@ -112,7 +115,7 @@ export async function analyzePost(content: string, apiKey: string): Promise<Anal
 
   try {
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4-turbo-preview',
+      model,
       messages: messages as any,
       temperature: 0.7,
       response_format: { type: 'json_object' },

@@ -1,6 +1,4 @@
 import { AnalyzeForm } from '@/components/analyze/analyze-form';
-import { ApiKeyDialogWrapper } from '@/components/api-key-dialog-wrapper';
-import { cookies } from 'next/headers';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -20,9 +18,6 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const cookieStore = await cookies();
-  const hasApiKey = cookieStore.get('openai-api-key') !== undefined;
-
   return (
     <main className="relative flex min-h-[calc(100vh-80px)] flex-col items-center justify-center p-8">
       {/* Grid Pattern Background */}
@@ -32,7 +27,6 @@ export default async function Home() {
         ))}
       </div>
       <AnalyzeForm />
-      {!hasApiKey && <ApiKeyDialogWrapper />}
     </main>
   );
 }
