@@ -52,8 +52,10 @@ export interface AnalysisResult {
   }>;
 }
 
-export async function analyzePost(content: string): Promise<AnalysisResult> {
-  const apiKey = process.env.OPENAI_API_KEY;
+export async function analyzePost(
+  content: string,
+  apiKey: string
+): Promise<AnalysisResult> {
   if (!apiKey) {
     throw new Error('OpenAI API key is required');
   }

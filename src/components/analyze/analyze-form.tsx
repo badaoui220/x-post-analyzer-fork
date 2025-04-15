@@ -35,7 +35,7 @@ export function AnalyzeForm() {
 
     setIsLoading(true);
     try {
-      const analysis = await analyzePost(content);
+      const analysis = await analyzePost(content, apiKey);
       if (analysis) {
         setResult(analysis);
       }
