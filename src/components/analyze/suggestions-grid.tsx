@@ -4,7 +4,7 @@
 import { motion } from 'framer-motion';
 
 import { Progress } from '@/components/ui/progress';
-import { Button } from '../ui/button';
+import { Button } from '@/components/ui/button';
 import {
   Copy,
   Check,
