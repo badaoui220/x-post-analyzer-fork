@@ -17,13 +17,14 @@ import type { AnalysisResult } from '@/actions/analyze';
 import type { Suggestion } from '@/actions/suggestions';
 import { ScoresCard } from './scores-card';
 import { SuggestionsGrid } from './suggestions-grid';
-import { ApiKeyDialog } from '../api-key-dialog';
-import { AnalysisSkeleton, SuggestionsSkeleton } from '../analysis-skeleton';
+import { ApiKeyDialog } from '@/components/api-key-dialog';
+import { AnalysisSkeleton, SuggestionsSkeleton } from '@/components/analysis-skeleton';
 import Cookies from 'js-cookie';
 import { ArrowUp, Loader2, Key, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { DEFAULT_MODEL, AVAILABLE_MODELS, DEFAULT_API_KEY } from '@/config/openai';
 import { cn } from '@/lib/utils';
+import { PostPreviewSpot } from '@/components/spots/post-preview-spot';
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -342,7 +343,7 @@ export function AnalyzeForm() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.3 }}
-                className="w-full"
+                className="w-full space-y-6"
               >
                 <div className="mb-4 flex items-center justify-between">
                   <Button
@@ -355,11 +356,15 @@ export function AnalyzeForm() {
                     Back
                   </Button>
                 </div>
-                <ScoresCard
-                  scores={analysis.scores}
-                  analytics={analysis.analytics}
-                  content={content}
-                />
+
+                <div className="space-y-6">
+                  <PostPreviewSpot
+                    id="spot-analysis-top"
+                    content={content}
+                    scores={analysis?.scores}
+                  />
+                  <ScoresCard scores={analysis.scores} analytics={analysis.analytics} />
+                </div>
               </motion.div>
             )}
           </AnimatePresence>

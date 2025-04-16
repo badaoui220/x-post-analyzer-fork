@@ -4,6 +4,7 @@ import './globals.css';
 import { Toaster } from 'sonner';
 import { Footer } from '@/components/footer';
 import { Analytics } from '@vercel/analytics/react';
+import { BannerSpot } from '@/components/spots/banner-spot';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -88,6 +89,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} min-h-screen bg-[#111] font-sans text-white antialiased`}>
+        <BannerSpot id="spot-banner" />
         {children}
         <Footer />
         <Toaster position="bottom-right" theme="dark" closeButton richColors />

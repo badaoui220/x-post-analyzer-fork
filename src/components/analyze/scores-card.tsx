@@ -43,11 +43,10 @@ interface ScoresCardProps {
     friendliness: number;
     virality: number;
   };
-  content: string;
   analytics: AdvancedAnalytics;
 }
 
-export function ScoresCard({ scores, analytics, content }: ScoresCardProps) {
+export function ScoresCard({ scores, analytics }: ScoresCardProps) {
   const ref = useRef(null);
   const isInView = useInView(ref);
   const count = useMotionValue(0);
@@ -141,10 +140,6 @@ export function ScoresCard({ scores, analytics, content }: ScoresCardProps) {
               <motion.span>{rounded}</motion.span>%
             </div>
             <div className="mt-2 text-sm text-white/60">Global Score</div>
-            <p
-              className="monospace mt-2 text-sm text-gray-400"
-              dangerouslySetInnerHTML={{ __html: content }}
-            ></p>
           </motion.div>
 
           <div className="space-y-3">
