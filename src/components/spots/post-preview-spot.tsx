@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import spotsConfig from '@/config/spots.json';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Repeat2 } from 'lucide-react';
 
 interface PostPreviewSpotProps {
   id: string;
@@ -156,7 +157,7 @@ export function PostPreviewSpot({ id, content, scores, className }: PostPreviewS
           </div>
 
           {/* Post Text */}
-          <div className="mt-1 whitespace-pre-wrap text-[15px] text-white">
+          <div className="mt-1 text-[15px] whitespace-pre-wrap text-white">
             {spot.available ? (
               <div className="space-y-2 text-[#71767b]">
                 <p>
@@ -197,14 +198,7 @@ export function PostPreviewSpot({ id, content, scores, className }: PostPreviewS
 
             <div className="group flex items-center gap-1">
               <div className="rounded-full p-2 group-hover:bg-[#071a14] group-hover:text-[#00ba7c]">
-                <svg className="h-[1.25em]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M4.5 12c0-1.232.046-2.453.134-3.662a4.006 4.006 0 013.662-3.662c1.21-.088 2.433-.134 3.662-.134 1.234 0 2.455.046 3.662.134a4.006 4.006 0 013.662 3.662c.088 1.21.134 2.433.134 3.662 0 1.234-.046 2.455-.134 3.662a4.006 4.006 0 01-3.662 3.662c-1.21.088-2.433.134-3.662.134-1.234 0-2.455-.046-3.662-.134a4.006 4.006 0 01-3.662-3.662A49.138 49.138 0 014.5 12zm12 0v3.75a2.25 2.25 0 01-2.25 2.25H9.75A2.25 2.25 0 017.5 15.75V8.25A2.25 2.25 0 019.75 6H10"
-                  />
-                </svg>
+                <Repeat2 className="size-5" />
               </div>
               <span className="text-sm">{formatNumber(metrics.reposts)}</span>
             </div>

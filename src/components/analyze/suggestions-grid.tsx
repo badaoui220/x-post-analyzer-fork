@@ -99,7 +99,7 @@ export function SuggestionsGrid({
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gray-500 to-gray-700 text-white/30"></div>
                 <div className="space-y-1">
                   <div className="h-4 w-28 rounded-3xl bg-gray-500"></div>
-                  <div className="w-15 h-2 rounded-3xl bg-gray-500"></div>
+                  <div className="h-2 w-15 rounded-3xl bg-gray-500"></div>
                 </div>
               </div>
 
@@ -217,7 +217,7 @@ export function SuggestionsGrid({
                 >
                   {/* Readability */}
                   <div className="flex items-start gap-3">
-                    <BookOpen className="mt-1 h-5 w-5 text-blue-400" />
+                    <BookOpen className="mt-1 h-5 w-5 shrink-0 text-blue-400" />
                     <div>
                       <div className="mb-1 font-medium text-white">
                         Readability Score: {analytics.readability.score}%
@@ -230,7 +230,7 @@ export function SuggestionsGrid({
 
                   {/* Sentiment */}
                   <div className="flex items-start gap-3">
-                    <Smile className="mt-1 h-5 w-5 text-yellow-400" />
+                    <Smile className="mt-1 h-5 w-5 shrink-0 text-yellow-400" />
                     <div>
                       <div className="mb-1 font-medium text-white">
                         Sentiment: {analytics.sentiment.type}
@@ -243,7 +243,7 @@ export function SuggestionsGrid({
 
                   {/* Timing */}
                   <div className="flex items-start gap-3">
-                    <Clock className="mt-1 h-5 w-5 text-green-400" />
+                    <Clock className="mt-1 h-5 w-5 shrink-0 text-green-400" />
                     <div>
                       <div className="mb-1 font-medium text-white">Best Posting Time</div>
                       <div className="text-sm text-gray-400">
@@ -256,7 +256,7 @@ export function SuggestionsGrid({
 
                   {/* Target Audience */}
                   <div className="flex items-start gap-3">
-                    <Users className="mt-1 h-5 w-5 text-orange-400" />
+                    <Users className="mt-1 h-5 w-5 shrink-0 text-orange-400" />
                     <div>
                       <div className="mb-1 font-medium text-white">Target Audience</div>
                       <div className="text-sm text-gray-400">
@@ -269,7 +269,7 @@ export function SuggestionsGrid({
 
                   {/* Keywords */}
                   <div className="flex items-start gap-3">
-                    <Sparkles className="mt-1 h-5 w-5 text-pink-400" />
+                    <Sparkles className="mt-1 h-5 w-5 shrink-0 text-pink-400" />
                     <div>
                       <div className="mb-1 font-medium text-white">Optimal Keywords</div>
                       <div className="text-sm text-gray-400">
