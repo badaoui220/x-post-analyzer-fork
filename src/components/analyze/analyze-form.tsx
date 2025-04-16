@@ -23,6 +23,7 @@ import Cookies from 'js-cookie';
 import { ArrowUp, Loader2, Key } from 'lucide-react';
 import { toast } from 'sonner';
 import { DEFAULT_MODEL, AVAILABLE_MODELS, DEFAULT_API_KEY } from '@/config/openai';
+import { cn } from '@/lib/utils';
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -64,6 +65,20 @@ export function AnalyzeForm() {
   };
 
   const MAX_LENGTH = 280; // X's character limit
+
+  const getCharacterCountColor = (count: number) => {
+    if (count >= MAX_LENGTH) return 'text-red-500';
+    if (count >= MAX_LENGTH * 0.9) return 'text-yellow-500';
+    if (count >= MAX_LENGTH * 0.7) return 'text-orange-500';
+    return 'text-green-500';
+  };
+
+  const getProgressBarColor = (count: number) => {
+    if (count >= MAX_LENGTH) return 'bg-red-500';
+    if (count >= MAX_LENGTH * 0.9) return 'bg-yellow-500';
+    if (count >= MAX_LENGTH * 0.7) return 'bg-orange-500';
+    return 'bg-green-500';
+  };
 
   const handleAnalyze = async (text: string = content, shouldGetSuggestions = true) => {
     const apiKey = Cookies.get('openai-api-key') || DEFAULT_API_KEY;
@@ -216,21 +231,41 @@ export function AnalyzeForm() {
           <AnimatePresence mode="wait">
             {!analysis && !isAnalyzing && (
               <motion.div key="input" className="w-full space-y-4" {...slideUp}>
-                <Textarea
-                  placeholder="What's on your mind? Paste or type your X post here..."
-                  value={content}
-                  onChange={e => {
-                    const text = e.target.value;
-                    if (text.length <= MAX_LENGTH) {
-                      setContent(text);
-                    }
-                  }}
-                  maxLength={MAX_LENGTH}
-                  disabled={isAnalyzing}
-                  className="monospace min-h-[200px] w-full resize-none rounded-xl border-0 bg-[#1a1a1a] pr-24 text-white transition-all duration-300 placeholder:text-gray-500 focus:border-transparent focus:ring-1 focus:ring-white/20"
-                />
-                <div className="absolute right-3 top-3 text-sm text-white/40">
-                  {content.length}/{MAX_LENGTH}
+                <div className="relative">
+                  <Textarea
+                    placeholder="What's on your mind? Paste or type your X post here..."
+                    value={content}
+                    onChange={e => {
+                      const text = e.target.value;
+                      if (text.length <= MAX_LENGTH) {
+                        setContent(text);
+                      }
+                    }}
+                    maxLength={MAX_LENGTH}
+                    disabled={isAnalyzing}
+                    className="monospace min-h-[200px] w-full resize-none rounded-xl border-0 bg-[#1a1a1a] pb-14 pr-24 text-white transition-all duration-300 placeholder:text-gray-500 focus:border-transparent focus:ring-1 focus:ring-white/20"
+                  />
+                  <div className="absolute right-3 top-3 flex flex-col items-end gap-1">
+                    <span
+                      className={cn(
+                        'text-sm font-medium transition-colors duration-200',
+                        getCharacterCountColor(content.length)
+                      )}
+                    >
+                      {content.length}/{MAX_LENGTH}
+                    </span>
+                    <div className="h-1 w-16 overflow-hidden rounded-full bg-[#333]">
+                      <div
+                        className={cn(
+                          'h-full transition-all duration-200',
+                          getProgressBarColor(content.length)
+                        )}
+                        style={{
+                          width: `${Math.min((content.length / MAX_LENGTH) * 100, 100)}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
                 </div>
                 <div className="absolute bottom-6 mt-1 flex w-full items-center justify-between px-2">
                   <div className="flex items-center gap-2">
@@ -266,21 +301,19 @@ export function AnalyzeForm() {
                       Own key
                     </Button>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      onClick={() => handleAnalyze()}
-                      disabled={!content.trim() || isAnalyzing}
-                      variant="secondary"
-                      size="icon"
-                      className="group cursor-pointer"
-                    >
-                      {isAnalyzing ? (
-                        <Loader2 className="stroke-3 size-5 animate-spin" />
-                      ) : (
-                        <ArrowUp className="stroke-3 size-4 transition-transform group-hover:-translate-y-0.5" />
-                      )}
-                    </Button>
-                  </div>
+                  <Button
+                    onClick={() => handleAnalyze()}
+                    disabled={!content.trim() || isAnalyzing}
+                    variant="secondary"
+                    size="icon"
+                    className="group cursor-pointer"
+                  >
+                    {isAnalyzing ? (
+                      <Loader2 className="stroke-3 size-5 animate-spin" />
+                    ) : (
+                      <ArrowUp className="stroke-3 size-4 transition-transform group-hover:-translate-y-0.5" />
+                    )}
+                  </Button>
                 </div>
               </motion.div>
             )}
