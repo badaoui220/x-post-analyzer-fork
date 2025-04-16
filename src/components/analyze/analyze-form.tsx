@@ -20,7 +20,7 @@ import { SuggestionsGrid } from './suggestions-grid';
 import { ApiKeyDialog } from '../api-key-dialog';
 import { AnalysisSkeleton, SuggestionsSkeleton } from '../analysis-skeleton';
 import Cookies from 'js-cookie';
-import { ArrowUp, Loader2, Key } from 'lucide-react';
+import { ArrowUp, Loader2, Key, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { DEFAULT_MODEL, AVAILABLE_MODELS, DEFAULT_API_KEY } from '@/config/openai';
 import { cn } from '@/lib/utils';
@@ -188,6 +188,11 @@ export function AnalyzeForm() {
     setShowApiKeyDialog(false);
   };
 
+  const handleReturn = () => {
+    setAnalysis(null);
+    setSuggestions(null);
+  };
+
   return (
     <>
       <AnimatePresence mode="wait">
@@ -339,6 +344,17 @@ export function AnalyzeForm() {
                 transition={{ duration: 0.3 }}
                 className="w-full"
               >
+                <div className="mb-4 flex items-center justify-between">
+                  <Button
+                    onClick={handleReturn}
+                    variant="ghost"
+                    size="sm"
+                    className="group text-white/60 hover:bg-white/10 hover:text-white"
+                  >
+                    <ArrowLeft className="h-4 w-4 cursor-pointer transition-transform group-hover:-translate-x-0.5" />
+                    Back
+                  </Button>
+                </div>
                 <ScoresCard
                   scores={analysis.scores}
                   analytics={analysis.analytics}
