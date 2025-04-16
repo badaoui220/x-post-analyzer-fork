@@ -1,0 +1,154 @@
+{
+  "creators": [
+    {
+      "id": 1,
+      "name": "@levelsio",
+      "handle": "@levelsio",
+      "avatar": "https://pbs.twimg.com/profile_images/1589756412078555136/YlXMBzhp_400x400.jpg",
+      "recentTweets": [
+        {
+          "text": "Another bug submitted by a user, that I just copy pasted into Cursor and then immediately fixed\n\nI think I need to create an automated workflow that pulls bugs reported from my \n@featurebase\n bug board, then sends them into Cursor/AI etc, to immediately fix it, then do a pull request that I can then check\n\nFully automated AI bug fixing workflow will be the standard I think\n\nAnd then my daily work will just be checking the AI's pull requests and approve or reject",
+          "metrics": {
+            "comments": 123,
+            "reposts": 34,
+            "likes": 925,
+            "impressions": 89400
+          }
+        },
+        {
+          "text": "Interesting to follow \n\nBecause rich people going to space actually helps pay for the research and development that makes space cheaper for the next tier of people who can then afford it\n\nAnd that will keep going on until everyone can go to space\n\nThe same exact thing happened with air travel from 1930 to today",
+          "metrics": {
+            "comments": 45,
+            "reposts": 65,
+            "likes": 790,
+            "impressions": 111600
+          }
+        },
+        {
+          "text": "I agree with all of this except set an alarm\n\nI'd say never set an alarm\n\nOne of the reasons I still look relatively young is 100% because I was able to stop using an alarm about 12 years ago after graduating uni I think\n\nMy dad's a cardiologist and alarms cause a giant jump in blood pressure\n\nInstant jolt of stress and cortisol, also it cuts off your sleep\n\nYou should awake naturally when your body had enough sleep\n\nOf course life gets in the way, but being a business owner, you can set your own times and awake when you're fully rested\n\nHarder with kids but must be possible too",
+          "metrics": {
+            "comments": 241,
+            "reposts": 93,
+            "likes": 2300,
+            "impressions": 377400
+          }
+        },
+        {
+          "text": "You already have all the knowledge\n\nMake a site today and add a Stripe button",
+          "metrics": {
+            "comments": 103,
+            "reposts": 85,
+            "likes": 1800,
+            "impressions": 268000
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Marc Lou",
+      "handle": "@marc_louvion",
+      "avatar": "https://pbs.twimg.com/profile_images/1514863683574599681/9k7PqDTA_400x400.jpg",
+      "recentTweets": [
+        {
+          "text": "The API gates are... open!\n\nYou can now try the 2 new \n@DataFast_\n API endpoints:\n\n1. Create goals (newsletter signup, onboarding completed, etc.)\n2. Get visitor data to know their identity, activity, and predicted conversion rate (revenue attribution required)\n\nYou can use the 2nd endpoint to update your landing page and increase revenue:\n\n🥵 Visitor high likely to convert? Create urgency or exclusivity\n🥶 Cold visitor? Show a lead magnet or coupon\n\nI opened the gates. What you do next is up to you.",
+          "metrics": {
+            "comments": 13,
+            "reposts": 0,
+            "likes": 39,
+            "impressions": 3500
+          }
+        },
+        {
+          "text": "How to grow an audience with ChatGPT's latest update:\n\n1.  Ask: \"What makes me special based on all our chats?\"\n2. Build a personal brand around that ONE thing.\n\nAI knows you so well (if you use it often) that it will find what makes you different. This is what you need in 2025 to grow an audience: Be unique, be different, be you.",
+          "metrics": {
+            "comments": 63,
+            "reposts": 21,
+            "likes": 286,
+            "impressions": 30600
+          }
+        },
+        {
+          "text": "Korean taxis have WiFi on board so I can vibe code, pretty cool \n\nBooked with Kakao T app",
+          "metrics": {
+            "comments": 37,
+            "reposts": 3,
+            "likes": 187,
+            "impressions": 19000
+          }
+        },
+        {
+          "text": "I'm French.\n\nIf I follow what society tells me, I'd have to wait until I turn 70 to retire, have free time, no boss, no worries about money.\n\n70 years old... No fucking way.\n\nPeople say entrepreneurship is hard and risky. True. Nothing happened to me for 7 years. But like most entrepreneurs who push through void and silence, the dots have connected and I should be retired before I turn 40.\n\nBet on yourself.",
+          "metrics": {
+            "comments": 103,
+            "reposts": 29,
+            "likes": 655,
+            "impressions": 61500
+          }
+        },
+        {
+          "text": "How to live a happy life in two simple steps:\n\n1. Be an optimist.\n2. Hang out with optimists.\n\nWhat you believe, see, and hear becomes your reality.",
+          "metrics": {
+            "comments": 89,
+            "reposts": 116,
+            "likes": 1200,
+            "impressions": 64500
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Tibo",
+      "handle": "@tibo_maker",
+      "avatar": "https://pbs.twimg.com/profile_images/1631931185180934144/59z_ZFKm_400x400.jpg",
+      "recentTweets": [
+        {
+          "text": "Outrank just crossed $25,000 MRR 🙌 \n That too in just 6 months \n So I sat down with a pen and paper to figure out exactly how we did this.\nBreaking it all down in my newsletter tomorrow.\n> How we grew\n> The key point of growth\n> Future plans for the product\nSubscribe below to get it 👇",
+          "metrics": {
+            "likes": 154,
+            "comments": 28,
+            "reposts": 7,
+            "impressions": 11000
+          }
+        },
+        {
+          "text": "In a world where cost of building comes to 0, owning trademark may be very very very profitable",
+          "metrics": {
+            "likes": 218,
+            "comments": 56,
+            "reposts": 7,
+            "impressions": 38000
+          }
+        },
+        {
+          "text": "The CTO of HubSpot gave a talk about the future of AI agents. \n\nGreat insights in here. \nSharing my favorite ones below.",
+          "metrics": {
+            "likes": 70,
+            "comments": 11,
+            "reposts": 4,
+            "impressions": 10000
+          }
+        },
+        {
+          "text": "Sam learning quickly and shipping 4.1 after 4.5 👏",
+          "metrics": {
+            "likes": 27,
+            "comments": 12,
+            "reposts": 3,
+            "impressions": 6400
+          }
+        },
+        {
+          "text": "Users are incredibly lazy\n\nIf you expect them to read everything to make your app work, you've already lost",
+          "metrics": {
+            "likes": 312,
+            "comments": 77,
+            "reposts": 20,
+            "impressions": 19000
+          }
+        }
+      ]
+    }
+  ]
+} 

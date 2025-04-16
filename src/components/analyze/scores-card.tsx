@@ -44,9 +44,10 @@ interface ScoresCardProps {
     virality: number;
   };
   analytics: AdvancedAnalytics;
+  content: string;
 }
 
-export function ScoresCard({ scores, analytics }: ScoresCardProps) {
+export function ScoresCard({ scores, analytics, content }: ScoresCardProps) {
   const ref = useRef(null);
   const isInView = useInView(ref);
   const count = useMotionValue(0);
@@ -131,16 +132,20 @@ export function ScoresCard({ scores, analytics }: ScoresCardProps) {
         {/* Content */}
         <div className="relative z-10">
           <motion.div
-            className="mb-8 flex flex-col items-center justify-center"
-            initial={{ scale: 0.5, opacity: 0 }}
+            className="mb-4 flex flex-col"
+            initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.3, type: 'spring' }}
+            transition={{ delay: 0.2, type: 'spring' }}
           >
-            <div className="bg-gradient-to-r from-white to-gray-400 bg-clip-text text-5xl font-bold text-transparent">
+            <div className="bg-gradient-to-r from-white to-gray-400 bg-clip-text text-6xl font-bold text-transparent">
               <motion.span>{rounded}</motion.span>%
             </div>
-            <div className="mt-2 text-sm text-white/60">Global Score</div>
+            <div className="mt-2 text-sm tracking-widest text-white/60">Global Score</div>
           </motion.div>
+
+          <p className="monospace mb-4 rounded-lg border border-white/20 px-3 py-2 text-sm text-white/60">
+            {content}
+          </p>
 
           <div className="space-y-3">
             <motion.div
@@ -188,7 +193,7 @@ export function ScoresCard({ scores, analytics }: ScoresCardProps) {
           >
             {/* Readability */}
             <div className="flex items-start gap-3">
-              <BookOpen className="mt-1 h-5 w-5 text-blue-400" />
+              <BookOpen className="mt-1 h-5 w-5 shrink-0 text-blue-400" />
               <div>
                 <div className="mb-1 font-medium text-white">
                   Readability Score: {analytics.readability.score}%
@@ -201,7 +206,7 @@ export function ScoresCard({ scores, analytics }: ScoresCardProps) {
 
             {/* Sentiment */}
             <div className="flex items-start gap-3">
-              <Smile className="mt-1 h-5 w-5 text-yellow-400" />
+              <Smile className="mt-1 h-5 w-5 shrink-0 text-yellow-400" />
               <div>
                 <div className="mb-1 font-medium text-white">
                   Sentiment: {analytics.sentiment.type}
@@ -214,7 +219,7 @@ export function ScoresCard({ scores, analytics }: ScoresCardProps) {
 
             {/* Timing */}
             <div className="flex items-start gap-3">
-              <Clock className="mt-1 h-5 w-5 text-green-400" />
+              <Clock className="mt-1 h-5 w-5 shrink-0 text-green-400" />
               <div>
                 <div className="mb-1 font-medium text-white">Best Posting Time</div>
                 <div className="text-sm text-gray-400">
@@ -227,7 +232,7 @@ export function ScoresCard({ scores, analytics }: ScoresCardProps) {
 
             {/* Hashtags */}
             <div className="flex items-start gap-3">
-              <Hash className="mt-1 h-5 w-5 text-purple-400" />
+              <Hash className="mt-1 h-5 w-5 shrink-0 text-purple-400" />
               <div>
                 <div className="mb-1 font-medium text-white">Recommended Hashtags</div>
                 <div className="text-sm text-gray-400">
@@ -240,7 +245,7 @@ export function ScoresCard({ scores, analytics }: ScoresCardProps) {
 
             {/* Target Audience */}
             <div className="flex items-start gap-3">
-              <Users className="mt-1 h-5 w-5 text-orange-400" />
+              <Users className="mt-1 h-5 w-5 shrink-0 text-orange-400" />
               <div>
                 <div className="mb-1 font-medium text-white">Target Audience</div>
                 <div className="text-sm text-gray-400">
@@ -253,7 +258,7 @@ export function ScoresCard({ scores, analytics }: ScoresCardProps) {
 
             {/* Keywords */}
             <div className="flex items-start gap-3">
-              <Sparkles className="mt-1 h-5 w-5 text-pink-400" />
+              <Sparkles className="mt-1 h-5 w-5 shrink-0 text-pink-400" />
               <div>
                 <div className="mb-1 font-medium text-white">Optimal Keywords</div>
                 <div className="text-sm text-gray-400">

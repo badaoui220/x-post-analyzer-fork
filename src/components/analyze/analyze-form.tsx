@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -20,11 +20,12 @@ import { SuggestionsGrid } from './suggestions-grid';
 import { ApiKeyDialog } from '@/components/api-key-dialog';
 import { AnalysisSkeleton, SuggestionsSkeleton } from '@/components/analysis-skeleton';
 import Cookies from 'js-cookie';
-import { ArrowUp, Loader2, Key, ArrowLeft } from 'lucide-react';
+import { ArrowUp, Loader2, Key, ArrowLeft, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { DEFAULT_MODEL, AVAILABLE_MODELS, DEFAULT_API_KEY } from '@/config/openai';
 import { cn } from '@/lib/utils';
-import { PostPreviewSpot } from '@/components/spots/post-preview-spot';
+import { StyleExamples } from './style-examples';
+import { PostPreviewSpot } from '../spots/post-preview-spot';
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -50,6 +51,8 @@ export function AnalyzeForm() {
   const [currentAnalyzing, setCurrentAnalyzing] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL);
   const [isUsingDefaultKey, setIsUsingDefaultKey] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const storedModel = Cookies.get('openai-model');
@@ -60,12 +63,33 @@ export function AnalyzeForm() {
     setIsUsingDefaultKey(!savedApiKey);
   }, []);
 
+  useEffect(() => {
+    if (showSuggestions && suggestions && suggestionsRef.current) {
+      const timer = setTimeout(() => {
+        const element = suggestionsRef.current;
+        if (element) {
+          const headerOffset = 100; // Adjust this value based on your header height
+          const elementPosition = element.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth',
+          });
+        }
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showSuggestions, suggestions]);
+
   const handleModelChange = (model: string) => {
     setSelectedModel(model);
     Cookies.set('openai-model', model, { expires: 30 });
   };
 
   const MAX_LENGTH = 280; // X's character limit
+  const apiKey = Cookies.get('openai-api-key') || DEFAULT_API_KEY;
 
   const getCharacterCountColor = (count: number) => {
     if (count >= MAX_LENGTH) return 'text-red-500';
@@ -81,8 +105,7 @@ export function AnalyzeForm() {
     return 'bg-green-500';
   };
 
-  const handleAnalyze = async (text: string = content, shouldGetSuggestions = true) => {
-    const apiKey = Cookies.get('openai-api-key') || DEFAULT_API_KEY;
+  const handleAnalyze = async (text: string = content) => {
     if (!apiKey) {
       setShowApiKeyDialog(true);
       return;
@@ -90,14 +113,13 @@ export function AnalyzeForm() {
 
     setIsAnalyzing(true);
     setCurrentAnalyzing(text);
+    setShowSuggestions(false);
+    setSuggestions(null);
     try {
       const result = await analyzePost(text, apiKey);
       if (result) {
         setAnalysis(result);
-        setContent(text); // Update the content to the analyzed text
-        if (shouldGetSuggestions) {
-          handleGetSuggestions(text, apiKey);
-        }
+        setContent(text);
       }
     } catch (error) {
       console.error('Error analyzing post:', error);
@@ -113,12 +135,17 @@ export function AnalyzeForm() {
     }
   };
 
-  const handleGetSuggestions = async (text: string, apiKey: string) => {
+  const handleGetSuggestions = async () => {
+    if (!apiKey) {
+      setShowApiKeyDialog(true);
+      return;
+    }
+
     setIsGettingSuggestions(true);
-    setSuggestions(null); // Clear existing suggestions
     try {
-      const result = await getSuggestions(text, apiKey);
+      const result = await getSuggestions(content, apiKey);
       setSuggestions(result);
+      setShowSuggestions(true);
     } catch (error) {
       console.error('Error getting suggestions:', error);
       toast.error('Failed to get suggestions', {
@@ -232,11 +259,15 @@ export function AnalyzeForm() {
       <div className="w-full space-y-6">
         <div
           id="analysis-section"
-          className="relative mx-auto flex w-full max-w-lg flex-col items-center"
+          className={cn('relative mx-auto flex w-full max-w-4xl flex-col items-center')}
         >
           <AnimatePresence mode="wait">
             {!analysis && !isAnalyzing && (
-              <motion.div key="input" className="w-full space-y-4" {...slideUp}>
+              <motion.div
+                key="input"
+                className="relative mx-auto w-full max-w-lg space-y-4"
+                {...slideUp}
+              >
                 <div className="relative">
                   <Textarea
                     placeholder="What's on your mind? Paste or type your X post here..."
@@ -249,9 +280,9 @@ export function AnalyzeForm() {
                     }}
                     maxLength={MAX_LENGTH}
                     disabled={isAnalyzing}
-                    className="monospace min-h-[200px] w-full resize-none rounded-xl border-0 bg-[#1a1a1a] pb-14 pr-24 text-white transition-all duration-300 placeholder:text-gray-500 focus:border-transparent focus:ring-1 focus:ring-white/20"
+                    className="monospace min-h-[200px] w-full resize-none rounded-xl border-0 bg-[#1a1a1a] pr-24 pb-14 text-white transition-all duration-300 placeholder:text-gray-500 focus:border-transparent focus:ring-1 focus:ring-white/20"
                   />
-                  <div className="absolute right-3 top-3 flex flex-col items-end gap-1">
+                  <div className="absolute top-3 right-3 flex flex-col items-end gap-1">
                     <span
                       className={cn(
                         'text-sm font-medium transition-colors duration-200',
@@ -315,9 +346,9 @@ export function AnalyzeForm() {
                     className="group cursor-pointer"
                   >
                     {isAnalyzing ? (
-                      <Loader2 className="stroke-3 size-5 animate-spin" />
+                      <Loader2 className="size-5 animate-spin stroke-3" />
                     ) : (
-                      <ArrowUp className="stroke-3 size-4 transition-transform group-hover:-translate-y-0.5" />
+                      <ArrowUp className="size-4 stroke-3 transition-transform group-hover:-translate-y-0.5" />
                     )}
                   </Button>
                 </div>
@@ -363,7 +394,33 @@ export function AnalyzeForm() {
                     content={content}
                     scores={analysis?.scores}
                   />
-                  <ScoresCard scores={analysis.scores} analytics={analysis.analytics} />
+
+                  <div className="grid items-center justify-center gap-6 md:grid-cols-2">
+                    <div className="relative">
+                      {!showSuggestions && (
+                        <Button
+                          onClick={handleGetSuggestions}
+                          disabled={isGettingSuggestions}
+                          variant="outline"
+                          size="sm"
+                          className="group absolute top-2 right-2 z-10 cursor-pointer border-white/20 bg-transparent text-xs"
+                        >
+                          {isGettingSuggestions ? (
+                            <Loader2 className="size-3 animate-spin" />
+                          ) : (
+                            <Sparkles className="size-3" />
+                          )}
+                          Get Suggestions
+                        </Button>
+                      )}
+                      <ScoresCard
+                        scores={analysis.scores}
+                        analytics={analysis.analytics}
+                        content={content}
+                      />
+                    </div>
+                    <StyleExamples content={content} apiKey={apiKey} />
+                  </div>
                 </div>
               </motion.div>
             )}
@@ -385,23 +442,19 @@ export function AnalyzeForm() {
             </motion.div>
           )}
 
-          {suggestions && (
-            <motion.div
-              key="suggestions"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="mx-auto mt-8 max-w-6xl space-y-4"
-            >
-              <h2 className="text-2xl font-bold">Suggestions</h2>
-              <SuggestionsGrid
-                suggestions={suggestions}
-                onReanalyze={handleReanalyze}
-                isAnalyzing={isAnalyzing}
-                currentAnalyzing={currentAnalyzing}
-              />
-            </motion.div>
-          )}
+          <div ref={suggestionsRef} key="suggestions" className="mx-auto mt-8 max-w-6xl space-y-8">
+            {showSuggestions && suggestions && (
+              <div className="space-y-4">
+                <h2 className="text-2xl font-bold">Suggestions</h2>
+                <SuggestionsGrid
+                  suggestions={suggestions}
+                  onReanalyze={handleReanalyze}
+                  isAnalyzing={isAnalyzing}
+                  currentAnalyzing={currentAnalyzing}
+                />
+              </div>
+            )}
+          </div>
         </AnimatePresence>
       </div>
 
