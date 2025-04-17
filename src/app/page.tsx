@@ -2,9 +2,9 @@ import { AnalyzeForm } from '@/components/analyze/analyze-form';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'X Post Analyzer - AI-Powered Post Analysis',
+  title: 'PostRoast - AI-Powered X (Twitter) Post Analysis & Roasting',
   description:
-    'Analyze your X (Twitter) posts with AI to improve engagement, friendliness, and virality. Get instant feedback and suggestions for better content.',
+    'Get your X (Twitter) posts roasted by AI! PostRoast analyzes your content for engagement, clarity, and provides actionable feedback to improve.',
 };
 
 export default async function Home() {

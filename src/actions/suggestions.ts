@@ -16,9 +16,19 @@ export interface Suggestion {
   analytics: AdvancedAnalytics;
 }
 
-export async function getSuggestions(content: string, apiKey: string): Promise<Suggestion[]> {
+export async function getSuggestions(
+  content: string,
+  apiKey: string,
+  niche?: string,
+  goal?: string
+): Promise<Suggestion[]> {
   if (!apiKey) {
     throw new Error('OpenAI API key is required');
+  }
+
+  if (!content || typeof content !== 'string' || content.trim() === '') {
+    console.warn('Invalid content provided for suggestions. Returning empty array.');
+    return [];
   }
 
   const openai = new OpenAI({ apiKey });
@@ -27,7 +37,7 @@ export async function getSuggestions(content: string, apiKey: string): Promise<S
   const messages = [
     {
       role: 'system',
-      content: `Create three improved versions of this X (Twitter) post that:
+      content: `You are an expert social media copywriter. For the following X (Twitter) post${niche && niche !== 'General' ? ` from a user in the **${niche}** niche` : ''}${goal ? ` whose primary goal is **${goal}**` : ''}, create three improved versions that:
       1. Sound more natural, friendly, and engaging
       2. Simplify the language so it's easy to read
       3. Make it feel like a conversation
@@ -39,8 +49,10 @@ export async function getSuggestions(content: string, apiKey: string): Promise<S
          - Friendliness score (0-100)
          - Virality score (0-100)
          - Advanced analytics (same as analyze.ts)
-      
-      Respond in this JSON format:
+
+      **IMPORTANT: Each suggestion MUST aim for significantly higher engagement, friendliness, and virality scores compared to the original post's likely performance. The scores you assign must reflect this improvement.**
+
+      Respond *only* in this JSON format. The root object must contain a single key "suggestions", which is an array containing **exactly three** suggestion objects:
       {
         "suggestions": [
           {
@@ -82,7 +94,9 @@ export async function getSuggestions(content: string, apiKey: string): Promise<S
             }
           }
         ]
-      }`,
+      }
+
+      Tailor the suggestions and their scores/analytics based on the specified niche and goal where relevant. Ensure the suggestions are genuine improvements focused on achieving higher scores.`,
     },
     {
       role: 'user',

@@ -2,44 +2,65 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { analyzePost } from '@/actions/analyze';
 import { getSuggestions } from '@/actions/suggestions';
-import type { AnalysisResult } from '@/actions/analyze';
+import type { AnalysisResult, AdvancedAnalytics } from '@/actions/analyze';
 import type { Suggestion } from '@/actions/suggestions';
-import { ScoresCard } from './scores-card';
-import { SuggestionsGrid } from './suggestions-grid';
 import { ApiKeyDialog } from '@/components/api-key-dialog';
-import { AnalysisSkeleton, SuggestionsSkeleton } from '@/components/analysis-skeleton';
+import { AnalysisSkeleton } from '@/components/analysis-skeleton';
 import Cookies from 'js-cookie';
-import { ArrowUp, Loader2, Key, ArrowLeft, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
-import { DEFAULT_MODEL, AVAILABLE_MODELS, DEFAULT_API_KEY } from '@/config/openai';
+import { DEFAULT_MODEL, DEFAULT_API_KEY } from '@/config/openai';
 import { cn } from '@/lib/utils';
-import { StyleExamples } from './style-examples';
-import { PostPreviewSpot } from '../spots/post-preview-spot';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogOverlay,
+} from '@/components/ui/alert-dialog';
+import { ScoreDisplay } from './score-display';
+import { ScoreComparison } from './score-comparison';
+import { FormHeader } from './form-header';
+import { InputSection } from './input-section';
+import { AnalysisDisplay } from './analysis-display';
+import { SuggestionsSection } from './suggestions-section';
 
-const fadeIn = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -20 },
-  transition: { duration: 0.5 },
-};
+// --- Rate Limiting Constants ---
+const MAX_REQUESTS = 10; // Max requests allowed
+const TIME_WINDOW_MS = 60 * 60 * 1000; // 1 hour in milliseconds
+const USAGE_STORAGE_KEY = 'apiUsageData';
+const MAX_LENGTH = 280; // X's character limit
+// --- End Constants ---
 
-const slideUp = {
-  initial: { opacity: 0, y: 50 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -50 },
-  transition: { duration: 0.5 },
-};
+// --- Usage Tracking Types ---
+interface UsageData {
+  count: number;
+  timestamp: number;
+}
+// --- End Types ---
+
+// --- Constants for Personalization ---
+const NICHES = [
+  'General',
+  'Tech',
+  'Marketing',
+  'SaaS',
+  'Creator',
+  'Writing',
+  'E-commerce',
+  'Finance',
+];
+const GOALS = [
+  'Engagement (Likes, Replies)',
+  'Reach & Virality',
+  'Clicks & Traffic',
+  'Follows & Growth',
+  'Thought Leadership',
+];
+// --- End Constants ---
 
 export function AnalyzeForm() {
   const [content, setContent] = useState('');
@@ -50,8 +71,15 @@ export function AnalyzeForm() {
   const [showApiKeyDialog, setShowApiKeyDialog] = useState(false);
   const [currentAnalyzing, setCurrentAnalyzing] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL);
-  const [isUsingDefaultKey, setIsUsingDefaultKey] = useState(false);
+  const [isUsingDefaultKey, setIsUsingDefaultKey] = useState(true);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedNiche, setSelectedNiche] = useState<string>(NICHES[0]);
+  const [selectedGoal, setSelectedGoal] = useState<string>(GOALS[0]);
+  const [abTestData, setAbTestData] = useState<{
+    originalAnalysis: AnalysisResult | null;
+    suggestionAnalysis: AnalysisResult | null;
+    suggestionContent: string;
+  } | null>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -59,17 +87,78 @@ export function AnalyzeForm() {
     if (storedModel) {
       setSelectedModel(storedModel);
     }
+    const storedNiche = Cookies.get('user-niche');
+    if (storedNiche && NICHES.includes(storedNiche)) {
+      setSelectedNiche(storedNiche);
+    }
+    const storedGoal = Cookies.get('user-goal');
+    if (storedGoal && GOALS.includes(storedGoal)) {
+      setSelectedGoal(storedGoal);
+    }
     const savedApiKey = Cookies.get('openai-api-key');
     setIsUsingDefaultKey(!savedApiKey);
   }, []);
+
+  // --- Rate Limiting Helpers ---
+  const getUsageData = (): UsageData | null => {
+    try {
+      const data = localStorage.getItem(USAGE_STORAGE_KEY);
+      return data ? JSON.parse(data) : null;
+    } catch (error) {
+      console.error('Error reading usage data from localStorage:', error);
+      return null;
+    }
+  };
+
+  const setUsageData = (data: UsageData): void => {
+    try {
+      localStorage.setItem(USAGE_STORAGE_KEY, JSON.stringify(data));
+    } catch (error) {
+      console.error('Error saving usage data to localStorage:', error);
+    }
+  };
+
+  const checkUsageLimit = (): boolean => {
+    const now = Date.now();
+    let usage = getUsageData();
+
+    // Reset if timestamp is outside the window or data is invalid
+    if (!usage || now - usage.timestamp > TIME_WINDOW_MS) {
+      usage = { count: 0, timestamp: now };
+    }
+
+    if (usage.count >= MAX_REQUESTS) {
+      // Limit exceeded
+      const timeLeft = Math.ceil((usage.timestamp + TIME_WINDOW_MS - now) / (60 * 1000));
+      toast.error(`Usage limit reached (${MAX_REQUESTS} requests per hour)`, {
+        description: `Please try again in ${timeLeft} minute(s).`,
+        className: 'bg-[#1a1a1a] border border-[#333] text-white',
+      });
+      return false;
+    } else {
+      // Allowed, increment count and update timestamp
+      usage.count += 1;
+      usage.timestamp = now; // Always update timestamp on allowed request
+      setUsageData(usage);
+      return true;
+    }
+  };
+  // --- End Rate Limiting Helpers ---
 
   const handleModelChange = (model: string) => {
     setSelectedModel(model);
     Cookies.set('openai-model', model, { expires: 30 });
   };
 
-  const MAX_LENGTH = 280; // X's character limit
-  const apiKey = Cookies.get('openai-api-key') || DEFAULT_API_KEY;
+  const handleNicheChange = (niche: string) => {
+    setSelectedNiche(niche);
+    Cookies.set('user-niche', niche, { expires: 30 });
+  };
+
+  const handleGoalChange = (goal: string) => {
+    setSelectedGoal(goal);
+    Cookies.set('user-goal', goal, { expires: 30 });
+  };
 
   const getCharacterCountColor = (count: number) => {
     if (count >= MAX_LENGTH) return 'text-red-500';
@@ -86,7 +175,14 @@ export function AnalyzeForm() {
   };
 
   const handleAnalyze = async (text: string = content) => {
-    if (!apiKey) {
+    const currentApiKey = Cookies.get('openai-api-key') || DEFAULT_API_KEY;
+
+    // Apply rate limit only when using the default API key
+    if (currentApiKey === DEFAULT_API_KEY) {
+      if (!checkUsageLimit()) return;
+    }
+
+    if (!currentApiKey) {
       setShowApiKeyDialog(true);
       return;
     }
@@ -96,7 +192,7 @@ export function AnalyzeForm() {
     setShowSuggestions(false);
     setSuggestions(null);
     try {
-      const result = await analyzePost(text, apiKey);
+      const result = await analyzePost(text, currentApiKey, selectedNiche, selectedGoal);
       if (result) {
         setAnalysis(result);
         setContent(text);
@@ -116,33 +212,40 @@ export function AnalyzeForm() {
   };
 
   const handleGetSuggestions = async () => {
-    if (!apiKey) {
+    const currentApiKey = Cookies.get('openai-api-key') || DEFAULT_API_KEY;
+
+    // Apply rate limit only when using the default API key
+    if (currentApiKey === DEFAULT_API_KEY) {
+      if (!checkUsageLimit()) return;
+    }
+
+    if (!currentApiKey) {
       setShowApiKeyDialog(true);
       return;
     }
 
     setIsGettingSuggestions(true);
     try {
+      // Scroll suggestions into view if they are not already visible
       setTimeout(() => {
         if (suggestionsRef.current) {
           const element = suggestionsRef.current;
-          const headerOffset = 100; // Adjust this value based on your header height
-          const elementPosition = element.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+          const rect = element.getBoundingClientRect();
+          // Only scroll if the top of the element is below 80% of the viewport height
+          if (rect.top > window.innerHeight * 0.8) {
+            const headerOffset = 100; // Adjust as needed
+            const offsetPosition = rect.top + window.pageYOffset - headerOffset;
 
-          console.log('offsetPosition', offsetPosition);
-
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth',
-          });
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: 'smooth',
+            });
+          }
         }
-      }, 100);
-      const result = await getSuggestions(content, apiKey);
+      }, 100); // Short delay after setting state
+      const result = await getSuggestions(content, currentApiKey, selectedNiche, selectedGoal);
       setSuggestions(result);
       setShowSuggestions(true);
-      console.log('suggestionsRef.current', suggestionsRef.current);
-      // Add a small delay to ensure the suggestions section is rendered
     } catch (error) {
       console.error('Error getting suggestions:', error);
       toast.error('Failed to get suggestions', {
@@ -154,9 +257,23 @@ export function AnalyzeForm() {
   };
 
   const handleReanalyze = async (text: string) => {
-    const apiKey = Cookies.get('openai-api-key') || DEFAULT_API_KEY;
-    if (!apiKey) {
+    const currentApiKey = Cookies.get('openai-api-key') || DEFAULT_API_KEY;
+
+    // Apply rate limit only when using the default API key
+    if (currentApiKey === DEFAULT_API_KEY) {
+      if (!checkUsageLimit()) return;
+    }
+
+    if (!currentApiKey) {
       setShowApiKeyDialog(true);
+      return;
+    }
+
+    // Add check for valid text before proceeding
+    if (!text || typeof text !== 'string' || text.trim() === '') {
+      toast.error('Cannot re-analyze empty content.', {
+        className: 'bg-[#1a1a1a] border border-[#333] text-white',
+      });
       return;
     }
 
@@ -181,8 +298,8 @@ export function AnalyzeForm() {
     try {
       // Run analysis and get suggestions in parallel
       const [analysisResult, suggestionsResult] = await Promise.all([
-        analyzePost(text, apiKey),
-        getSuggestions(text, apiKey),
+        analyzePost(text, currentApiKey, selectedNiche, selectedGoal),
+        getSuggestions(text, currentApiKey, selectedNiche, selectedGoal),
       ]);
 
       if (analysisResult) {
@@ -207,9 +324,39 @@ export function AnalyzeForm() {
     }
   };
 
+  const handleSimulateABTest = (suggestion: {
+    text: string;
+    analytics: AdvancedAnalytics;
+    scores: {
+      engagement: number;
+      friendliness: number;
+      virality: number;
+    };
+  }) => {
+    if (!Cookies.get('openai-api-key') || !analysis) {
+      toast.error('Cannot simulate without API key and initial analysis.', {
+        className: 'bg-[#1a1a1a] border border-[#333] text-white',
+      });
+      return;
+    }
+
+    // Directly set the state with available data, no loading needed
+    // Construct a structure similar to AnalysisResult for the suggestion part
+    const constructedSuggestionAnalysis: Partial<AnalysisResult> = {
+      scores: suggestion.scores,
+      analytics: suggestion.analytics,
+      analysis: undefined,
+    };
+
+    setAbTestData({
+      originalAnalysis: analysis,
+      suggestionAnalysis: constructedSuggestionAnalysis as AnalysisResult, // Assert type for now
+      suggestionContent: suggestion.text,
+    });
+  };
+
   const handleApiKeySave = () => {
-    const savedApiKey = Cookies.get('openai-api-key');
-    setIsUsingDefaultKey(!savedApiKey);
+    setIsUsingDefaultKey(false);
     setShowApiKeyDialog(false);
   };
 
@@ -220,38 +367,7 @@ export function AnalyzeForm() {
 
   return (
     <>
-      <AnimatePresence mode="wait">
-        {!analysis && !isAnalyzing && (
-          <motion.div key="header" {...fadeIn} className="relative mb-8 space-y-4 text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="relative mx-auto mb-8 h-16 w-16"
-            >
-              <div className="bg-primary/20 absolute inset-0 rounded-2xl blur-xl" />
-              <div className="relative rounded-2xl bg-white p-4 shadow-lg">
-                <span className="text-2xl font-bold text-black">𝕏</span>
-              </div>
-            </motion.div>
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="mb-4 text-4xl font-bold tracking-tight md:text-6xl"
-            >
-              𝕏 Post Analyzer
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="text-muted-foreground mx-auto max-w-2xl text-xl"
-            >
-              Get AI-powered insights to improve your posts&apos; engagement and reach
-            </motion.p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <AnimatePresence mode="wait">{!analysis && !isAnalyzing && <FormHeader />}</AnimatePresence>
 
       <div className="w-full space-y-6">
         <div
@@ -260,96 +376,25 @@ export function AnalyzeForm() {
         >
           <AnimatePresence mode="wait">
             {!analysis && !isAnalyzing && (
-              <motion.div
-                key="input"
-                className="relative mx-auto w-full max-w-lg space-y-4"
-                {...slideUp}
-              >
-                <div className="relative">
-                  <Textarea
-                    placeholder="What's on your mind? Paste or type your X post here..."
-                    value={content}
-                    onChange={e => {
-                      const text = e.target.value;
-                      if (text.length <= MAX_LENGTH) {
-                        setContent(text);
-                      }
-                    }}
-                    maxLength={MAX_LENGTH}
-                    disabled={isAnalyzing}
-                    className="monospace min-h-[200px] w-full resize-none rounded-xl border-0 bg-[#1a1a1a] pr-24 pb-14 text-white transition-all duration-300 placeholder:text-gray-500 focus:border-transparent focus:ring-1 focus:ring-white/20"
-                  />
-                  <div className="absolute top-3 right-3 flex flex-col items-end gap-1">
-                    <span
-                      className={cn(
-                        'text-sm font-medium transition-colors duration-200',
-                        getCharacterCountColor(content.length)
-                      )}
-                    >
-                      {content.length}/{MAX_LENGTH}
-                    </span>
-                    <div className="h-1 w-16 overflow-hidden rounded-full bg-[#333]">
-                      <div
-                        className={cn(
-                          'h-full transition-all duration-200',
-                          getProgressBarColor(content.length)
-                        )}
-                        style={{
-                          width: `${Math.min((content.length / MAX_LENGTH) * 100, 100)}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="absolute bottom-6 mt-1 flex w-full items-center justify-between bg-[#1a1a1a] px-2">
-                  <div className="flex items-center gap-2">
-                    <Select
-                      value={selectedModel}
-                      onValueChange={handleModelChange}
-                      disabled={isAnalyzing || isUsingDefaultKey}
-                    >
-                      <SelectTrigger className="w-32 border-none bg-[#2a2a2a] text-white">
-                        <SelectValue placeholder="Select a model" />
-                      </SelectTrigger>
-                      <SelectContent className="border border-[#333] bg-[#1a1a1a] text-white">
-                        {AVAILABLE_MODELS.map(model => (
-                          <SelectItem
-                            key={model.id}
-                            value={model.id}
-                            className="cursor-pointer hover:bg-[#2a2a2a]"
-                            disabled={isUsingDefaultKey && model.id !== DEFAULT_MODEL}
-                          >
-                            {model.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowApiKeyDialog(true)}
-                      className="text-white/60 hover:bg-white/10 hover:text-white"
-                    >
-                      <Key className="h-4 w-4" />
-                      Own key
-                    </Button>
-                  </div>
-                  <Button
-                    onClick={() => handleAnalyze()}
-                    disabled={!content.trim() || isAnalyzing}
-                    variant="secondary"
-                    size="icon"
-                    className="group cursor-pointer"
-                  >
-                    {isAnalyzing ? (
-                      <Loader2 className="size-5 animate-spin stroke-3" />
-                    ) : (
-                      <ArrowUp className="size-4 stroke-3 transition-transform group-hover:-translate-y-0.5" />
-                    )}
-                  </Button>
-                </div>
-              </motion.div>
+              <InputSection
+                content={content}
+                setContent={setContent}
+                selectedNiche={selectedNiche}
+                handleNicheChange={handleNicheChange}
+                selectedGoal={selectedGoal}
+                handleGoalChange={handleGoalChange}
+                selectedModel={selectedModel}
+                handleModelChange={handleModelChange}
+                isAnalyzing={isAnalyzing}
+                isUsingDefaultKey={isUsingDefaultKey}
+                handleAnalyze={handleAnalyze}
+                setShowApiKeyDialog={setShowApiKeyDialog}
+                getCharacterCountColor={getCharacterCountColor}
+                getProgressBarColor={getProgressBarColor}
+                MAX_LENGTH={MAX_LENGTH}
+                NICHES={NICHES}
+                GOALS={GOALS}
+              />
             )}
 
             {isAnalyzing && (
@@ -366,100 +411,29 @@ export function AnalyzeForm() {
             )}
 
             {analysis && (
-              <motion.div
-                key="analysis"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3 }}
-                className="w-full space-y-6"
-              >
-                <div className="mb-4 flex items-center justify-between">
-                  <Button
-                    onClick={handleReturn}
-                    variant="ghost"
-                    size="sm"
-                    className="group text-white/60 hover:bg-white/10 hover:text-white"
-                  >
-                    <ArrowLeft className="h-4 w-4 cursor-pointer transition-transform group-hover:-translate-x-0.5" />
-                    Back
-                  </Button>
-                </div>
-
-                <div className="space-y-6">
-                  <PostPreviewSpot
-                    id="spot-analysis-top"
-                    content={content}
-                    scores={analysis?.scores}
-                  />
-
-                  <div className="relative grid items-start justify-center gap-6 md:grid-cols-2">
-                    <div className="relative">
-                      {!showSuggestions && (
-                        <Button
-                          onClick={handleGetSuggestions}
-                          disabled={isGettingSuggestions}
-                          variant="outline"
-                          size="sm"
-                          className="group absolute top-2 right-2 z-10 cursor-pointer border-white/20 bg-transparent text-xs"
-                        >
-                          {isGettingSuggestions ? (
-                            <Loader2 className="size-3 animate-spin" />
-                          ) : (
-                            <Sparkles className="size-3" />
-                          )}
-                          Get Suggestions
-                        </Button>
-                      )}
-                      <ScoresCard
-                        scores={analysis.scores}
-                        analytics={analysis.analytics}
-                        content={content}
-                        analysis={analysis.analysis}
-                      />
-                    </div>
-                    <div className="sticky top-0 pt-5">
-                      <StyleExamples content={content} apiKey={apiKey} />
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
+              <AnalysisDisplay
+                analysis={analysis}
+                content={content}
+                handleReturn={handleReturn}
+                showSuggestions={showSuggestions}
+                handleGetSuggestions={handleGetSuggestions}
+                isGettingSuggestions={isGettingSuggestions}
+                apiKey={Cookies.get('openai-api-key') || DEFAULT_API_KEY}
+              />
             )}
           </AnimatePresence>
         </div>
 
-        <AnimatePresence mode="wait">
-          {isGettingSuggestions && (
-            <motion.div
-              key="suggestions-skeleton"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className="mx-auto max-w-6xl space-y-4"
-            >
-              <h2 className="text-2xl font-bold">Suggestions</h2>
-              <SuggestionsSkeleton />
-            </motion.div>
-          )}
-
-          <div
-            ref={suggestionsRef}
-            key="suggestions"
-            className="relative mx-auto mt-8 max-w-6xl space-y-8"
-          >
-            {showSuggestions && suggestions && (
-              <div className="space-y-4">
-                <h2 className="text-2xl font-bold">Suggestions</h2>
-                <SuggestionsGrid
-                  suggestions={suggestions}
-                  onReanalyze={handleReanalyze}
-                  isAnalyzing={isAnalyzing}
-                  currentAnalyzing={currentAnalyzing}
-                />
-              </div>
-            )}
-          </div>
-        </AnimatePresence>
+        <SuggestionsSection
+          isGettingSuggestions={isGettingSuggestions}
+          showSuggestions={showSuggestions}
+          suggestions={suggestions}
+          suggestionsRef={suggestionsRef}
+          handleReanalyze={handleReanalyze}
+          handleSimulateABTest={handleSimulateABTest}
+          isAnalyzing={isAnalyzing}
+          currentAnalyzing={currentAnalyzing}
+        />
       </div>
 
       <ApiKeyDialog
@@ -467,6 +441,63 @@ export function AnalyzeForm() {
         onClose={() => setShowApiKeyDialog(false)}
         onSave={handleApiKeySave}
       />
+
+      <AlertDialog open={!!abTestData} onOpenChange={open => !open && setAbTestData(null)}>
+        <AlertDialogOverlay className="bg-black/50 backdrop-blur-sm" />
+        <AlertDialogContent className="w-full border-[#333] bg-[#1a1a1a] text-white sm:max-w-3xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-2xl">A/B Simulation</AlertDialogTitle>
+          </AlertDialogHeader>
+
+          {abTestData && (
+            <div className="max-h-[70vh] overflow-y-auto p-1 pr-3">
+              <>
+                <div className="grid grid-cols-1 gap-6 py-4 md:grid-cols-2">
+                  <div className="flex flex-col justify-between gap-4">
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold text-white/80">Original</h3>
+                      <div className="min-h-[120px] rounded-md border border-[#2a2a2a] bg-[#222] p-3 text-sm text-white/90">
+                        {content}
+                      </div>
+                    </div>
+                    <ScoreDisplay scores={abTestData.originalAnalysis?.scores} />
+                  </div>
+
+                  <div className="flex flex-col justify-between gap-4">
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold text-white/80">Suggestion</h3>
+                      <div className="min-h-[120px] rounded-md border border-[#2a2a2a] bg-[#222] p-3 text-sm text-white/90">
+                        {abTestData.suggestionContent}
+                      </div>
+                    </div>
+                    <ScoreDisplay scores={abTestData.suggestionAnalysis?.scores} />
+                  </div>
+                </div>
+
+                <div className="mt-4">
+                  <ScoreComparison
+                    originalScores={abTestData.originalAnalysis?.scores}
+                    suggestionScores={abTestData.suggestionAnalysis?.scores}
+                  />
+                </div>
+              </>
+            </div>
+          )}
+
+          <AlertDialogFooter className="mt-4 gap-5">
+            <p className="text-xs text-white/50">
+              * This simulation compares scores based on AI analysis metrics. It does not guarantee
+              real-world engagement differences.
+            </p>
+            <AlertDialogCancel
+              onClick={() => setAbTestData(null)}
+              className="border-[#333] bg-[#2a2a2a] text-white hover:bg-[#333]"
+            >
+              Close
+            </AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
