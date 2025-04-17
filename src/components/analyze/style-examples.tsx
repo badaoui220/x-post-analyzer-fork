@@ -207,8 +207,8 @@ export function StyleExamples({ content, apiKey }: StyleExamplesProps) {
                         )}
                       </Button>
                     </div>
-                    <p className="mt-2 text-white">{example.text}</p>
-                    <div className="mt-4 flex items-center justify-between">
+                    <p className="mt-2 text-sm text-white">{example.text}</p>
+                    <div className="mt-2 flex items-center justify-between">
                       <div className="flex space-x-4">
                         <Button
                           variant="ghost"

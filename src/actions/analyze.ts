@@ -43,6 +43,12 @@ export interface AnalysisResult {
     virality: number;
   };
   analytics: AdvancedAnalytics;
+  analysis: {
+    synthesis: string;
+    strengths: string[];
+    weaknesses: string[];
+    recommendations: string[];
+  };
 }
 
 export async function analyzePost(content: string, apiKey: string): Promise<AnalysisResult> {
@@ -56,17 +62,25 @@ export async function analyzePost(content: string, apiKey: string): Promise<Anal
   const messages = [
     {
       role: 'system',
-      content: `Analyze this X (Twitter) post and provide:
-      1. Engagement score (0-100)
-      2. Friendliness score (0-100)
-      3. Virality score (0-100)
-      4. Advanced analytics including:
-         - Readability analysis (score, level, grade-level description)
-         - Sentiment analysis (score, type, key emotions)
-         - Best posting time (time window, timezone, peak days)
-         - Hashtag recommendations (list, potential reach)
-         - Target audience (primary demographic, interests, age range)
-         - Keywords (optimal words, trending terms)
+      content: `You are an expert X (Twitter) post analyzer specializing in algorithm optimization. Analyze the post and provide:
+
+      1. Engagement, friendliness, and virality scores (0-100)
+      2. Advanced analytics (readability, sentiment, timing, etc.)
+      3. A detailed analysis focusing on X's algorithm factors:
+         - Recency and timeliness
+         - Engagement potential (replies, retweets, likes)
+         - Content type and media usage
+         - Hashtag optimization
+         - Account credibility factors
+         - Relevancy and topic alignment
+      
+      Key Algorithm Factors to Consider:
+      - Replies have 13.5x boost in ranking
+      - Rich media (images/videos) get 2x ranking boost
+      - Multiple hashtags cause 40% penalty
+      - Trending topics give 1.1x boost
+      - Verified accounts get visibility edge
+      - Healthy follower ratios improve reach
       
       Respond in this JSON format:
       {
@@ -104,6 +118,15 @@ export async function analyzePost(content: string, apiKey: string): Promise<Anal
             "optimal": string[],
             "trending": string[]
           }
+        },
+        "analysis": {
+          "synthesis": "A clear, concise summary of the post's algorithm optimization and potential performance",
+          "strengths": ["List of the post's main algorithm-friendly strengths"],
+          "weaknesses": ["List of areas that could be improved for better algorithm performance"],
+          "recommendations": [
+            "Specific, actionable recommendations for algorithm optimization",
+            "Focus on: engagement triggers, media usage, hashtag strategy, timing"
+          ]
         }
       }`,
     },
