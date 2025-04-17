@@ -63,26 +63,6 @@ export function AnalyzeForm() {
     setIsUsingDefaultKey(!savedApiKey);
   }, []);
 
-  useEffect(() => {
-    if (showSuggestions && suggestions && suggestionsRef.current) {
-      const timer = setTimeout(() => {
-        const element = suggestionsRef.current;
-        if (element) {
-          const headerOffset = 100; // Adjust this value based on your header height
-          const elementPosition = element.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth',
-          });
-        }
-      }, 500);
-
-      return () => clearTimeout(timer);
-    }
-  }, [showSuggestions, suggestions]);
-
   const handleModelChange = (model: string) => {
     setSelectedModel(model);
     Cookies.set('openai-model', model, { expires: 30 });
@@ -143,9 +123,26 @@ export function AnalyzeForm() {
 
     setIsGettingSuggestions(true);
     try {
+      setTimeout(() => {
+        if (suggestionsRef.current) {
+          const element = suggestionsRef.current;
+          const headerOffset = 100; // Adjust this value based on your header height
+          const elementPosition = element.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+          console.log('offsetPosition', offsetPosition);
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth',
+          });
+        }
+      }, 100);
       const result = await getSuggestions(content, apiKey);
       setSuggestions(result);
       setShowSuggestions(true);
+      console.log('suggestionsRef.current', suggestionsRef.current);
+      // Add a small delay to ensure the suggestions section is rendered
     } catch (error) {
       console.error('Error getting suggestions:', error);
       toast.error('Failed to get suggestions', {
@@ -304,7 +301,7 @@ export function AnalyzeForm() {
                     </div>
                   </div>
                 </div>
-                <div className="absolute bottom-6 mt-1 flex w-full items-center justify-between px-2">
+                <div className="absolute bottom-6 mt-1 flex w-full items-center justify-between bg-[#1a1a1a] px-2">
                   <div className="flex items-center gap-2">
                     <Select
                       value={selectedModel}
@@ -395,7 +392,7 @@ export function AnalyzeForm() {
                     scores={analysis?.scores}
                   />
 
-                  <div className="grid items-center justify-center gap-6 md:grid-cols-2">
+                  <div className="relative grid items-start justify-center gap-6 md:grid-cols-2">
                     <div className="relative">
                       {!showSuggestions && (
                         <Button
@@ -417,9 +414,12 @@ export function AnalyzeForm() {
                         scores={analysis.scores}
                         analytics={analysis.analytics}
                         content={content}
+                        analysis={analysis.analysis}
                       />
                     </div>
-                    <StyleExamples content={content} apiKey={apiKey} />
+                    <div className="sticky top-0 pt-5">
+                      <StyleExamples content={content} apiKey={apiKey} />
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -442,7 +442,11 @@ export function AnalyzeForm() {
             </motion.div>
           )}
 
-          <div ref={suggestionsRef} key="suggestions" className="mx-auto mt-8 max-w-6xl space-y-8">
+          <div
+            ref={suggestionsRef}
+            key="suggestions"
+            className="relative mx-auto mt-8 max-w-6xl space-y-8"
+          >
             {showSuggestions && suggestions && (
               <div className="space-y-4">
                 <h2 className="text-2xl font-bold">Suggestions</h2>

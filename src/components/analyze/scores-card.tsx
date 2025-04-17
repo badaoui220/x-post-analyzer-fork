@@ -2,7 +2,7 @@
 
 import { motion, useMotionValue, useTransform, animate, useInView } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
-import { BookOpen, Smile, Clock, Hash, Users, Sparkles } from 'lucide-react';
+import { BookOpen, Smile, Clock, Hash, Users, Sparkles, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import ReactConfetti from 'react-confetti';
 
@@ -45,9 +45,15 @@ interface ScoresCardProps {
   };
   analytics: AdvancedAnalytics;
   content: string;
+  analysis?: {
+    synthesis: string;
+    strengths: string[];
+    weaknesses: string[];
+    recommendations: string[];
+  };
 }
 
-export function ScoresCard({ scores, analytics, content }: ScoresCardProps) {
+export function ScoresCard({ scores, analytics, content, analysis }: ScoresCardProps) {
   const ref = useRef(null);
   const isInView = useInView(ref);
   const count = useMotionValue(0);
@@ -184,6 +190,87 @@ export function ScoresCard({ scores, analytics, content }: ScoresCardProps) {
               <Progress value={scores.virality} className="h-1.5 bg-[#2a2a2a]" />
             </motion.div>
           </div>
+
+          {/* Algorithm Analysis Section */}
+          {analysis && (
+            <div className="mt-8 space-y-6">
+              <h3 className="text-lg font-semibold text-white">Algorithm Analysis</h3>
+
+              {/* Synthesis */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-white/80">
+                  <Sparkles className="h-5 w-5" />
+                  <span className="font-medium">Performance Overview</span>
+                </div>
+                <p className="text-sm text-white/60">{analysis.synthesis}</p>
+              </div>
+
+              {/* Algorithm Strengths */}
+              {analysis.strengths.length > 0 && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-green-400">
+                    <ThumbsUp className="h-5 w-5" />
+                    <span className="font-medium">Algorithm-Friendly Features</span>
+                  </div>
+                  <ul className="space-y-2 pl-7 text-sm text-green-400">
+                    {analysis.strengths.map((strength, index) => (
+                      <li key={index} className="list-disc">
+                        {strength}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Algorithm Weaknesses */}
+              {analysis.weaknesses.length > 0 && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-yellow-400">
+                    <ThumbsDown className="h-5 w-5" />
+                    <span className="font-medium">Algorithm Optimization Opportunities</span>
+                  </div>
+                  <ul className="space-y-2 pl-7 text-sm text-yellow-400">
+                    {analysis.weaknesses.map((weakness, index) => (
+                      <li key={index} className="list-disc">
+                        {weakness}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Algorithm Recommendations */}
+              {analysis.recommendations.length > 0 && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-blue-400">
+                    <Sparkles className="h-5 w-5" />
+                    <span className="font-medium">Algorithm Optimization Tips</span>
+                  </div>
+                  <ul className="space-y-2 pl-7 text-sm text-blue-400">
+                    {analysis.recommendations.map((recommendation, index) => (
+                      <li key={index} className="list-disc">
+                        {recommendation}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Algorithm Factors Summary */}
+              <div className="mt-4 rounded-lg border border-white/10 bg-white/5 p-4">
+                <h4 className="mb-2 text-sm font-medium text-white/80">Key Algorithm Factors</h4>
+                <ul className="space-y-1 text-xs text-white/60">
+                  <li>• Replies have 13.5x boost in ranking</li>
+                  <li>• Rich media (images/videos) get 2x ranking boost</li>
+                  <li>• Multiple hashtags cause 40% penalty</li>
+                  <li>• Trending topics give 1.1x boost</li>
+                  <li>• Verified accounts get visibility edge</li>
+                  <li>• Healthy follower ratios improve reach</li>
+                </ul>
+              </div>
+            </div>
+          )}
+
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
