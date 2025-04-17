@@ -51,9 +51,18 @@ export interface AnalysisResult {
   };
 }
 
-export async function analyzePost(content: string, apiKey: string): Promise<AnalysisResult> {
+export async function analyzePost(
+  content: string,
+  apiKey: string,
+  niche?: string,
+  goal?: string
+): Promise<AnalysisResult> {
   if (!apiKey) {
     throw new Error('OpenAI API key is required');
+  }
+
+  if (!content || typeof content !== 'string' || content.trim() === '') {
+    throw new Error('Invalid content provided for analysis.');
   }
 
   const openai = new OpenAI({ apiKey });
@@ -62,7 +71,7 @@ export async function analyzePost(content: string, apiKey: string): Promise<Anal
   const messages = [
     {
       role: 'system',
-      content: `You are an expert X (Twitter) post analyzer specializing in algorithm optimization. Analyze the post and provide:
+      content: `You are an expert social media post evaluator specializing in X (Twitter) algorithm optimization. Analyze the following post for a user${niche && niche !== 'General' ? ` in the **${niche}** niche` : ''}${goal ? ` whose primary goal is **${goal}**` : ''}. Provide:
 
       1. Engagement, friendliness, and virality scores (0-100)
       2. Advanced analytics (readability, sentiment, timing, etc.)
@@ -128,7 +137,8 @@ export async function analyzePost(content: string, apiKey: string): Promise<Anal
             "Focus on: engagement triggers, media usage, hashtag strategy, timing"
           ]
         }
-      }`,
+      },
+      "Tailor the analysis, scores, and recommendations based on the specified niche and goal where relevant."`,
     },
     {
       role: 'user',

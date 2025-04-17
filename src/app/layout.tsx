@@ -11,21 +11,23 @@ const inter = Inter({
   variable: '--font-inter',
 });
 
-const baseUrl = 'https://x-post-analyzer.vercel.app';
+const baseUrl = 'https://postroast.app';
 const ogImageUrl = `${baseUrl}/og.png`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: 'X Post Analyzer - AI-Powered Post Analysis',
-    template: '%s | X Post Analyzer',
+    default: 'PostRoast - AI-Powered X (Twitter) Post Analysis & Roasting',
+    template: '%s | PostRoast',
   },
   description:
-    'Get AI-powered insights to make your X (Twitter) posts more engaging, friendly, and viral. Analyze your content and get instant suggestions for improvement.',
+    'Get your X (Twitter) posts roasted by AI! PostRoast analyzes your content for engagement, clarity, and provides actionable feedback to improve.',
   keywords: [
     'X',
     'Twitter',
+    'post roast',
     'post analyzer',
+    'social media analysis',
     'AI analysis',
     'engagement',
     'virality',
@@ -47,24 +49,24 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: baseUrl,
-    title: 'X Post Analyzer - AI-Powered Post Analysis',
+    title: 'PostRoast - Roast Your Posts for Peak Performance',
     description:
-      'Get AI-powered insights to make your X (Twitter) posts more engaging, friendly, and viral.',
-    siteName: 'X Post Analyzer',
+      'Get AI-powered feedback on your social media posts. PostRoast helps improve engagement, clarity, and reach.',
+    siteName: 'PostRoast',
     images: [
       {
         url: ogImageUrl,
         width: 1200,
         height: 630,
-        alt: 'X Post Analyzer - AI-Powered Post Analysis',
+        alt: 'PostRoast - AI-Powered Social Post Analysis',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'X Post Analyzer - AI-Powered Post Analysis',
+    title: 'PostRoast - Roast Your Posts for Peak Performance',
     description:
-      'Get AI-powered insights to make your X (Twitter) posts more engaging, friendly, and viral.',
+      'Get AI-powered feedback on your social media posts. PostRoast helps improve engagement, clarity, and reach.',
     images: [ogImageUrl],
     creator: '@audiencon',
   },

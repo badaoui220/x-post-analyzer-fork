@@ -20,6 +20,7 @@ import {
   ChevronDown,
   ChevronUp,
   RefreshCw,
+  Scale,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useState } from 'react';
@@ -35,6 +36,15 @@ interface SuggestionsGridProps {
     };
   }[];
   onReanalyze: (text: string) => void;
+  onSimulateABTest: (suggestion: {
+    text: string;
+    analytics: any;
+    scores: {
+      engagement: number;
+      friendliness: number;
+      virality: number;
+    };
+  }) => void;
   isAnalyzing: boolean;
   currentAnalyzing: string | null;
 }
@@ -42,6 +52,7 @@ interface SuggestionsGridProps {
 export function SuggestionsGrid({
   suggestions,
   onReanalyze,
+  onSimulateABTest,
   isAnalyzing,
   currentAnalyzing,
 }: SuggestionsGridProps) {
@@ -113,7 +124,7 @@ export function SuggestionsGrid({
                 </div>
 
                 {/* Action Buttons */}
-                <div className="mb-4 flex items-center justify-between">
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -121,9 +132,9 @@ export function SuggestionsGrid({
                     onClick={() => handleCopy(suggestion.text, index)}
                   >
                     {copiedIndex === index ? (
-                      <Check className="mr-2 h-4 w-4" />
+                      <Check className="size-4" />
                     ) : (
-                      <Copy className="mr-2 h-4 w-4" />
+                      <Copy className="size-4" />
                     )}
                     {copiedIndex === index ? 'Copied!' : 'Copy'}
                   </Button>
@@ -135,10 +146,19 @@ export function SuggestionsGrid({
                     onClick={() => onReanalyze(suggestion.text)}
                     disabled={isAnalyzing}
                   >
-                    <RefreshCw
-                      className={`mr-2 h-4 w-4 ${isCurrentlyAnalyzing ? 'animate-spin' : ''}`}
-                    />
+                    <RefreshCw className={`size-4 ${isCurrentlyAnalyzing ? 'animate-spin' : ''}`} />
                     {isCurrentlyAnalyzing ? 'Analyzing...' : 'Re-analyze'}
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="hover:bg-primary cursor-pointer text-white/60 hover:text-white"
+                    onClick={() => onSimulateABTest(suggestion)}
+                    disabled={isAnalyzing}
+                  >
+                    <Scale className="size-4" />
+                    Compare
                   </Button>
                 </div>
 
@@ -146,19 +166,19 @@ export function SuggestionsGrid({
                 <div className="flex items-center justify-between border-y border-[#2a2a2a] py-3">
                   <div className="flex items-center gap-6">
                     <button className="flex items-center gap-2 text-gray-500 transition-colors hover:text-blue-400">
-                      <MessageCircle className="h-4 w-4" />
+                      <MessageCircle className="size-4" />
                       <span className="text-sm">24</span>
                     </button>
                     <button className="flex items-center gap-2 text-gray-500 transition-colors hover:text-green-400">
-                      <Repeat2 className="h-4 w-4" />
+                      <Repeat2 className="size-4" />
                       <span className="text-sm">12</span>
                     </button>
                     <button className="flex items-center gap-2 text-gray-500 transition-colors hover:text-pink-400">
-                      <Heart className="h-4 w-4" />
+                      <Heart className="size-4" />
                       <span className="text-sm">148</span>
                     </button>
                     <button className="flex items-center gap-2 text-gray-500 transition-colors hover:text-blue-400">
-                      <Share className="h-4 w-4" />
+                      <Share className="size-4" />
                     </button>
                   </div>
                 </div>
@@ -195,12 +215,12 @@ export function SuggestionsGrid({
               >
                 {isExpanded ? (
                   <>
-                    <ChevronUp className="mr-2 h-4 w-4" />
+                    <ChevronUp className="mr-2 size-4" />
                     Hide Analytics
                   </>
                 ) : (
                   <>
-                    <ChevronDown className="mr-2 h-4 w-4" />
+                    <ChevronDown className="mr-2 size-4" />
                     Show Advanced Analytics
                   </>
                 )}

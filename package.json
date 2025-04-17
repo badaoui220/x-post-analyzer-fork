@@ -1,5 +1,5 @@
 {
-  "name": "x-post-analyzer",
+  "name": "postroast",
   "version": "0.1.0",
   "private": true,
   "description": "AI-powered X (Twitter) post analyzer that provides engagement, friendliness, and virality scores with improvement suggestions",
@@ -7,17 +7,20 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/audiencon/x-post-analyzer.git"
+    "url": "https://github.com/audiencon/postroast.git"
   },
-  "homepage": "https://github.com/audiencon/x-post-analyzer#readme",
+  "homepage": "https://github.com/audiencon/postroast#readme",
   "bugs": {
-    "url": "https://github.com/audiencon/x-post-analyzer/issues"
+    "url": "https://github.com/audiencon/postroast/issues"
   },
   "keywords": [
     "twitter",
     "x",
+    "social media",
     "ai",
     "analysis",
+    "roast",
+    "critique",
     "engagement",
     "nextjs",
     "openai"
@@ -32,6 +35,7 @@
   },
   "dependencies": {
     "@number-flow/react": "^0.5.9",
+    "@radix-ui/react-alert-dialog": "^1.1.7",
     "@radix-ui/react-avatar": "^1.1.4",
     "@radix-ui/react-checkbox": "^1.1.5",
     "@radix-ui/react-dialog": "^1.1.7",

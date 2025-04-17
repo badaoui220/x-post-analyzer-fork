@@ -1,13 +1,14 @@
-# X Post Analyzer
+# PostRoast
 
-A modern web application that analyzes your X (Twitter) posts using AI to provide engagement, friendliness, and virality scores, along with suggestions for improvement. Built with Next.js and OpenAI.
+A modern web application to "roast" your X (Twitter) posts using AI to provide engagement, friendliness, and virality scores, along with suggestions 
+for improvement. Built with Next.js and OpenAI.
 
-![X Post Analyzer Screenshot](public/screenshot.png)
+![PostRoast Screenshot](public/screenshot.png)
 
 ## ✨ Features
 
-- 🔍 AI-powered post analysis
-- 📊 Detailed scoring for engagement, friendliness, and virality
+- 🔍 AI-powered post analysis & roasting
+- 📊 Detailed scoring for engagement, friendliness, and virality (platform-adaptable)
 - 💡 Smart suggestions for better posts
 - 🎉 Confetti celebration for good scores
 - 🎨 Clean and modern UI with dark theme
@@ -29,6 +30,8 @@ A modern web application that analyzes your X (Twitter) posts using AI to provid
    ```bash
    git clone https://github.com/audiencon/x-post-analyzer.git
    cd xposts
+   # Or: git clone https://github.com/audiencon/postroast.git
+   # cd postroast
    ```
 
 2. Install dependencies:
@@ -70,6 +73,13 @@ src/
 │   ├── analyze/           # Analysis components
 │   │   ├── analyze-form.tsx    # Main analysis form
 │   │   ├── scores-card.tsx     # Score display component
+│   │   ├── suggestions-grid.tsx # Suggestions display
+│   │   ├── form-header.tsx     # Extracted header component
+│   │   ├── input-section.tsx   # Extracted input component
+│   │   ├── analysis-display.tsx # Extracted results display
+│   │   ├── suggestions-section.tsx # Extracted suggestions area
+│   │   ├── score-display.tsx  # Extracted score helper
+│   │   ├── score-comparison.tsx # Extracted comparison helper
 │   │   └── suggestions-grid.tsx # Suggestions display
 │   ├── api-key-dialog/    # API key management
 │   │   └── api-key-dialog.tsx  # API key input dialog
@@ -116,6 +126,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Support
 
 If you encounter any issues or have questions, please [open an issue](https://github.com/audiencon/x-post-analyzer/issues) on GitHub.
+# Or: [open an issue](https://github.com/audiencon/postroast/issues)
 
 ---
 
