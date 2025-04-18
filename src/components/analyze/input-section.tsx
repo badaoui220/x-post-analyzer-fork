@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { ArrowUp, Loader2, Key } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AVAILABLE_MODELS, DEFAULT_MODEL } from '@/config/openai';
@@ -37,6 +38,8 @@ interface InputSectionProps {
   MAX_LENGTH: number;
   NICHES: readonly string[];
   GOALS: readonly string[];
+  hasVisualContent: boolean;
+  setHasVisualContent: (checked: boolean) => void;
 }
 
 const slideUp = {
@@ -64,6 +67,8 @@ export function InputSection({
   MAX_LENGTH,
   NICHES,
   GOALS,
+  hasVisualContent,
+  setHasVisualContent,
 }: InputSectionProps) {
   return (
     <motion.div key="input" className="relative mx-auto w-full max-w-lg space-y-4" {...slideUp}>
@@ -109,6 +114,20 @@ export function InputSection({
             </SelectContent>
           </Select>
         </div>
+      </div>
+
+      {/* Visual Content Switch */}
+      <div className="flex items-center space-x-2 pt-2">
+        <Switch
+          id="visual-content-switch"
+          checked={hasVisualContent}
+          onCheckedChange={setHasVisualContent}
+          disabled={isAnalyzing}
+          aria-label="Post includes image or video"
+        />
+        <Label htmlFor="visual-content-switch" className="text-sm font-medium text-white/60">
+          Post includes image or video
+        </Label>
       </div>
 
       <div className="relative">
