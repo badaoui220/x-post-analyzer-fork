@@ -75,6 +75,7 @@ export function AnalyzeForm() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedNiche, setSelectedNiche] = useState<string>(NICHES[0]);
   const [selectedGoal, setSelectedGoal] = useState<string>(GOALS[0]);
+  const [hasVisualContent, setHasVisualContent] = useState<boolean>(false);
   const [abTestData, setAbTestData] = useState<{
     originalAnalysis: AnalysisResult | null;
     suggestionAnalysis: AnalysisResult | null;
@@ -192,7 +193,13 @@ export function AnalyzeForm() {
     setShowSuggestions(false);
     setSuggestions(null);
     try {
-      const result = await analyzePost(text, currentApiKey, selectedNiche, selectedGoal);
+      const result = await analyzePost(
+        text,
+        currentApiKey,
+        selectedNiche,
+        selectedGoal,
+        hasVisualContent
+      );
       if (result) {
         setAnalysis(result);
         setContent(text);
@@ -243,7 +250,13 @@ export function AnalyzeForm() {
           }
         }
       }, 100); // Short delay after setting state
-      const result = await getSuggestions(content, currentApiKey, selectedNiche, selectedGoal);
+      const result = await getSuggestions(
+        content,
+        currentApiKey,
+        selectedNiche,
+        selectedGoal,
+        hasVisualContent
+      );
       setSuggestions(result);
       setShowSuggestions(true);
     } catch (error) {
@@ -298,8 +311,8 @@ export function AnalyzeForm() {
     try {
       // Run analysis and get suggestions in parallel
       const [analysisResult, suggestionsResult] = await Promise.all([
-        analyzePost(text, currentApiKey, selectedNiche, selectedGoal),
-        getSuggestions(text, currentApiKey, selectedNiche, selectedGoal),
+        analyzePost(text, currentApiKey, selectedNiche, selectedGoal, hasVisualContent),
+        getSuggestions(text, currentApiKey, selectedNiche, selectedGoal, hasVisualContent),
       ]);
 
       if (analysisResult) {
@@ -394,6 +407,8 @@ export function AnalyzeForm() {
                 MAX_LENGTH={MAX_LENGTH}
                 NICHES={NICHES}
                 GOALS={GOALS}
+                hasVisualContent={hasVisualContent}
+                setHasVisualContent={setHasVisualContent}
               />
             )}
 
