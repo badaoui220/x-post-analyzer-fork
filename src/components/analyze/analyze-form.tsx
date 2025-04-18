@@ -385,7 +385,7 @@ export function AnalyzeForm() {
       <div className="w-full space-y-6">
         <div
           id="analysis-section"
-          className={cn('relative mx-auto flex w-full max-w-4xl flex-col items-center')}
+          className={cn('relative mx-auto flex w-full max-w-6xl flex-col items-center')}
         >
           <AnimatePresence mode="wait">
             {!analysis && !isAnalyzing && (
