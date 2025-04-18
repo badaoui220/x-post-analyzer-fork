@@ -7,7 +7,7 @@
       "startDate": "2024-03-15",
       "endDate": "2024-03-22",
       "available": true,
-      "stripeUrl": "https://buy.stripe.com/00gaFKdcF2Xjc6sdQS",
+      "stripeUrl": "https://buy.stripe.com/dR6cNS3C569v1rOaEH",
       "data": {
         "title": "AnimStats",
         "description": "Boost Your Engagement by 10x with Stunning Animated GIFs/Videos",
@@ -15,7 +15,41 @@
       }
     },
     {
-      "id": "spot-analysis-top",
+      "id": "spot-analysis-top-1",
+      "price": 29,
+      "duration": "30d",
+      "available": true,
+      "startDate": "2024-03-10",
+      "endDate": "2024-03-24",
+      "stripeUrl": "https://buy.stripe.com/00gaFK1tXbtP2vSfYZ",
+      "data": {
+        "name": "Audiencon",
+        "username": "audiencon",
+        "avatar": "https://pbs.twimg.com/profile_images/1649411092286779393/978ESXXj_400x400.jpg",
+        "verified": true,
+        "bio": "indie hacker",
+        "url": "https://x.com/audiencon"
+      }
+    },
+    {
+      "id": "spot-analysis-top-2",
+      "price": 29,
+      "duration": "30d",
+      "available": true,
+      "startDate": "2024-03-10",
+      "endDate": "2024-03-24",
+      "stripeUrl": "https://buy.stripe.com/00gaFK1tXbtP2vSfYZ",
+      "data": {
+        "name": "Audiencon",
+        "username": "audiencon",
+        "avatar": "https://pbs.twimg.com/profile_images/1649411092286779393/978ESXXj_400x400.jpg",
+        "verified": true,
+        "bio": "indie hacker",
+        "url": "https://x.com/audiencon"
+      }
+    },
+    {
+      "id": "spot-analysis-top-3",
       "price": 29,
       "duration": "30d",
       "available": true,

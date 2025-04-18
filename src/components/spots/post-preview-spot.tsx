@@ -157,10 +157,10 @@ export function PostPreviewSpot({ id, content, scores, className }: PostPreviewS
           </div>
 
           {/* Post Text */}
-          <div className="mt-1 text-[15px] whitespace-pre-wrap text-white">
+          <div className="text-[15px] whitespace-pre-wrap text-white">
             {spot.available ? (
               <div className="space-y-2 text-[#71767b]">
-                <p>
+                <p className="text-sm">
                   Reach thousands of engaged & influential X users. Now accepting sponsorship
                   enquiries from aligned brands.
                 </p>
@@ -175,16 +175,16 @@ export function PostPreviewSpot({ id, content, scores, className }: PostPreviewS
               <div>
                 <div className="text-xs text-[#71767b]">{spot.data.bio}</div>
 
-                <p className="mt-5" dangerouslySetInnerHTML={{ __html: content }}></p>
+                <p className="mt-3" dangerouslySetInnerHTML={{ __html: content }}></p>
               </div>
             )}
           </div>
 
           {/* Post Actions */}
           <div className="mt-3 flex max-w-md justify-between text-[#71767b]">
-            <div className="group flex items-center gap-1">
+            <div className="group flex items-center">
               <div className="rounded-full p-2 group-hover:bg-[#1d1f23] group-hover:text-[#1d9bf0]">
-                <svg className="h-[1.25em]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-[1em]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -193,19 +193,19 @@ export function PostPreviewSpot({ id, content, scores, className }: PostPreviewS
                   />
                 </svg>
               </div>
-              <span className="text-sm">{formatNumber(metrics.replies)}</span>
+              <span className="text-xs">{formatNumber(metrics.replies)}</span>
             </div>
 
-            <div className="group flex items-center gap-1">
+            <div className="group flex items-center">
               <div className="rounded-full p-2 group-hover:bg-[#071a14] group-hover:text-[#00ba7c]">
-                <Repeat2 className="size-5" />
+                <Repeat2 className="size-4" />
               </div>
-              <span className="text-sm">{formatNumber(metrics.reposts)}</span>
+              <span className="text-xs">{formatNumber(metrics.reposts)}</span>
             </div>
 
-            <div className="group flex items-center gap-1">
+            <div className="group flex items-center">
               <div className="rounded-full p-2 group-hover:bg-[#1a1221] group-hover:text-[#f91880]">
-                <svg className="h-[1.25em]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-[1em]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -214,12 +214,12 @@ export function PostPreviewSpot({ id, content, scores, className }: PostPreviewS
                   />
                 </svg>
               </div>
-              <span className="text-sm">{formatNumber(metrics.likes)}</span>
+              <span className="text-xs">{formatNumber(metrics.likes)}</span>
             </div>
 
-            <div className="group flex items-center gap-1">
+            <div className="group flex items-center">
               <div className="rounded-full p-2 group-hover:bg-[#1d1f23] group-hover:text-[#1d9bf0]">
-                <svg className="h-[1.25em]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-[1em]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -228,7 +228,7 @@ export function PostPreviewSpot({ id, content, scores, className }: PostPreviewS
                   />
                 </svg>
               </div>
-              <span className="text-sm">{formatNumber(metrics.views)}</span>
+              <span className="text-xs">{formatNumber(metrics.views)}</span>
             </div>
 
             <div className="group flex items-center">

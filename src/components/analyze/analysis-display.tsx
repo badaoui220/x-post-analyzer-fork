@@ -50,7 +50,11 @@ export function AnalysisDisplay({
       </div>
 
       <div className="space-y-6">
-        <PostPreviewSpot id="spot-analysis-top" content={content} scores={analysis.scores} />
+        <div className="grid gap-3 md:grid-cols-3">
+          <PostPreviewSpot id="spot-analysis-top-1" content={content} scores={analysis.scores} />
+          <PostPreviewSpot id="spot-analysis-top-2" content={content} scores={analysis.scores} />
+          <PostPreviewSpot id="spot-analysis-top-3" content={content} scores={analysis.scores} />
+        </div>
 
         <div className="relative grid items-start justify-center gap-6 md:grid-cols-2">
           <div className="relative">
