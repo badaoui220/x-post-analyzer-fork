@@ -346,8 +346,8 @@ export function AnalyzeForm() {
       virality: number;
     };
   }) => {
-    if (!Cookies.get('openai-api-key') || !analysis) {
-      toast.error('Cannot simulate without API key and initial analysis.', {
+    if (!analysis) {
+      toast.error('Cannot simulate without initial analysis.', {
         className: 'bg-[#1a1a1a] border border-[#333] text-white',
       });
       return;
