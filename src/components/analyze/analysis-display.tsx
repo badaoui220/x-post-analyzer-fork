@@ -63,8 +63,8 @@ export function AnalysisDisplay({
                 onClick={handleGetSuggestions}
                 disabled={isGettingSuggestions}
                 variant="outline"
-                size="sm"
-                className="group absolute top-2 right-2 z-10 cursor-pointer border-white/20 bg-transparent text-xs"
+                size="lg"
+                className="group absolute top-2 right-2 z-20 cursor-pointer border-white/20 bg-transparent text-sm"
               >
                 {isGettingSuggestions ? (
                   <Loader2 className="size-3 animate-spin" />
