@@ -18,51 +18,51 @@
       "id": "spot-analysis-top-1",
       "price": 29,
       "duration": "30d",
-      "available": true,
-      "startDate": "2024-03-10",
-      "endDate": "2024-03-24",
+      "available": false,
+      "startDate": "2024-04-20",
+      "endDate": "2024-05-19",
       "stripeUrl": "https://buy.stripe.com/00gaFK1tXbtP2vSfYZ",
       "data": {
-        "name": "Audiencon",
-        "username": "audiencon",
-        "avatar": "https://pbs.twimg.com/profile_images/1649411092286779393/978ESXXj_400x400.jpg",
-        "verified": true,
-        "bio": "indie hacker",
-        "url": "https://x.com/audiencon"
+        "name": "Bilal Bakr",
+        "username": "bil0090",
+        "avatar": "https://pbs.twimg.com/profile_images/1913570629351002112/TToDhORd_400x400.jpg",
+        "verified": false,
+        "bio": "14 y/o Software Engineer, Co-founder, & CTO in middle school. building cool stuff & sharing the journey 🚀💻",
+        "url": "https://x.com/bil0090"
       }
     },
     {
       "id": "spot-analysis-top-2",
       "price": 29,
       "duration": "30d",
-      "available": true,
-      "startDate": "2024-03-10",
-      "endDate": "2024-03-24",
+      "available": false,
+      "startDate": "2024-04-20",
+      "endDate": "2024-05-19",
       "stripeUrl": "https://buy.stripe.com/00gaFK1tXbtP2vSfYZ",
       "data": {
-        "name": "Audiencon",
-        "username": "audiencon",
-        "avatar": "https://pbs.twimg.com/profile_images/1649411092286779393/978ESXXj_400x400.jpg",
+        "name": "Jitesh 🔺",
+        "username": "JiteshGhanchi",
+        "avatar": "https://pbs.twimg.com/profile_images/1896948634303746048/WBr5OM8T_400x400.jpg",
         "verified": true,
-        "bio": "indie hacker",
-        "url": "https://x.com/audiencon"
+        "bio": "Building : TapRefer.com | Victrays.com | FounderLogs.com | SkipCut.com",
+        "url": "https://x.com/JiteshGhanchi"
       }
     },
     {
       "id": "spot-analysis-top-3",
       "price": 29,
       "duration": "30d",
-      "available": true,
-      "startDate": "2024-03-10",
-      "endDate": "2024-03-24",
+      "available": false,
+      "startDate": "2024-04-20",
+      "endDate": "2024-05-19",
       "stripeUrl": "https://buy.stripe.com/00gaFK1tXbtP2vSfYZ",
       "data": {
-        "name": "Audiencon",
-        "username": "audiencon",
-        "avatar": "https://pbs.twimg.com/profile_images/1649411092286779393/978ESXXj_400x400.jpg",
+        "name": "Vladimir Khuraskin",
+        "username": "vladeku",
+        "avatar": "https://pbs.twimg.com/profile_images/1756249691522531328/jaJGCT1O_400x400.jpg",
         "verified": true,
-        "bio": "indie hacker",
-        "url": "https://x.com/audiencon"
+        "bio": "iOS dev 👨🏻‍💻 Building apps, chasing dreams. - Best ASO tool: tryastro.app",
+        "url": "https://x.com/vladeku"
       }
     }
   ]
