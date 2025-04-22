@@ -27,6 +27,7 @@ import { FormHeader } from './form-header';
 import { InputSection } from './input-section';
 import { AnalysisDisplay } from './analysis-display';
 import { SuggestionsSection } from './suggestions-section';
+import { InspirationDialog } from '@/components/inspiration/InspirationDialog';
 
 // --- Rate Limiting Constants ---
 const MAX_REQUESTS = 10; // Max requests allowed
@@ -81,6 +82,7 @@ export function AnalyzeForm() {
     suggestionAnalysis: AnalysisResult | null;
     suggestionContent: string;
   } | null>(null);
+  const [showInspirationDialog, setShowInspirationDialog] = useState(false);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -378,6 +380,12 @@ export function AnalyzeForm() {
     setSuggestions(null);
   };
 
+  // Handler for when an example is selected in the dialog
+  const handleInspirationSelect = (selectedText: string) => {
+    setContent(selectedText); // Update the main text area content
+    // Dialog closure is handled within InspirationDialog via onClose
+  };
+
   return (
     <>
       <AnimatePresence mode="wait">{!analysis && !isAnalyzing && <FormHeader />}</AnimatePresence>
@@ -409,6 +417,7 @@ export function AnalyzeForm() {
                 GOALS={GOALS}
                 hasVisualContent={hasVisualContent}
                 setHasVisualContent={setHasVisualContent}
+                onShowInspiration={() => setShowInspirationDialog(true)}
               />
             )}
 
@@ -513,6 +522,15 @@ export function AnalyzeForm() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <InspirationDialog
+        open={showInspirationDialog}
+        onClose={() => setShowInspirationDialog(false)}
+        onExampleSelect={handleInspirationSelect}
+        initialNiche={selectedNiche}
+        initialGoal={selectedGoal}
+        niches={NICHES}
+      />
     </>
   );
 }
