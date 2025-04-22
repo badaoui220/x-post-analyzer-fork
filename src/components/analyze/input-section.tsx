@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowUp, Loader2, Key } from 'lucide-react';
+import { ArrowUp, Loader2, Key, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AVAILABLE_MODELS, DEFAULT_MODEL } from '@/config/openai';
 
@@ -40,6 +40,7 @@ interface InputSectionProps {
   GOALS: readonly string[];
   hasVisualContent: boolean;
   setHasVisualContent: (checked: boolean) => void;
+  onShowInspiration: () => void;
 }
 
 const slideUp = {
@@ -69,32 +70,13 @@ export function InputSection({
   GOALS,
   hasVisualContent,
   setHasVisualContent,
+  onShowInspiration,
 }: InputSectionProps) {
   return (
-    <motion.div key="input" className="relative mx-auto w-full max-w-lg space-y-4" {...slideUp}>
-      {/* Personalization Selects */}
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="niche-select" className="mb-2 block text-sm font-medium text-white/60">
-            Your Niche
-          </Label>
-          <Select value={selectedNiche} onValueChange={handleNicheChange} disabled={isAnalyzing}>
-            <SelectTrigger
-              id="niche-select"
-              className="w-full border-0 bg-[#2a2a2a] text-white placeholder:text-gray-500 focus:ring-1 focus:ring-white/20"
-            >
-              <SelectValue placeholder="Select niche" />
-            </SelectTrigger>
-            <SelectContent className="border border-[#333] bg-[#1a1a1a] text-white">
-              {NICHES.map(niche => (
-                <SelectItem key={niche} value={niche} className="cursor-pointer hover:bg-[#2a2a2a]">
-                  {niche}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
+    <motion.div key="input" className="relative mx-auto w-full max-w-2xl space-y-4" {...slideUp}>
+      {/* Combined Goal Select and Visual Switch Row */}
+      <div className="flex items-end justify-between gap-4">
+        <div className="flex flex-col">
           <Label htmlFor="goal-select" className="mb-2 block text-sm font-medium text-white/60">
             Primary Goal
           </Label>
@@ -114,21 +96,23 @@ export function InputSection({
             </SelectContent>
           </Select>
         </div>
+        {/* Visual Content Switch */}
+        <div className="flex items-center space-x-2 pb-2">
+          <Switch
+            id="visual-content-switch"
+            checked={hasVisualContent}
+            onCheckedChange={setHasVisualContent}
+            disabled={isAnalyzing}
+            aria-label="Post includes image or video"
+          />
+          <Label htmlFor="visual-content-switch" className="text-sm font-medium text-white/60">
+            Post includes image or video
+          </Label>
+        </div>
       </div>
 
-      {/* Visual Content Switch */}
-      <div className="flex items-center space-x-2 pt-2">
-        <Switch
-          id="visual-content-switch"
-          checked={hasVisualContent}
-          onCheckedChange={setHasVisualContent}
-          disabled={isAnalyzing}
-          aria-label="Post includes image or video"
-        />
-        <Label htmlFor="visual-content-switch" className="text-sm font-medium text-white/60">
-          Post includes image or video
-        </Label>
-      </div>
+      {/* Removed Niche Select from here */}
+      {/* Removed full-width Inspiration Button from here */}
 
       <div className="relative">
         <Textarea
@@ -148,7 +132,7 @@ export function InputSection({
         <div className="absolute top-3 right-3 flex flex-col items-end gap-1">
           <span
             className={cn(
-              'text-sm font-medium transition-colors duration-200',
+              'monospace text-sm font-medium transition-colors duration-200',
               getCharacterCountColor(content.length)
             )}
           >
@@ -166,54 +150,95 @@ export function InputSection({
             />
           </div>
         </div>
-      </div>
-      <div className="absolute bottom-6 mt-1 flex w-full items-center justify-between bg-[#1a1a1a] px-2">
-        <div className="flex items-center gap-2">
-          <Select
-            value={selectedModel}
-            onValueChange={handleModelChange}
-            disabled={isAnalyzing || isUsingDefaultKey}
-          >
-            <SelectTrigger className="w-32 border-none bg-[#2a2a2a] text-white">
-              <SelectValue placeholder="Select a model" />
-            </SelectTrigger>
-            <SelectContent className="border border-[#333] bg-[#1a1a1a] text-white">
-              {AVAILABLE_MODELS.map(model => (
-                <SelectItem
-                  key={model.id}
-                  value={model.id}
-                  className="cursor-pointer hover:bg-[#2a2a2a]"
-                  disabled={isUsingDefaultKey && model.id !== DEFAULT_MODEL}
-                >
-                  {model.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        {/* Updated Textarea Bottom Bar */}
+        <div className="absolute right-0 bottom-0 left-0 flex items-center justify-between bg-[#1a1a1a] px-3 py-2">
+          {/* Left side controls */}
+          <div className="flex items-center gap-2">
+            <Select
+              value={selectedModel}
+              onValueChange={handleModelChange}
+              disabled={isAnalyzing || isUsingDefaultKey}
+            >
+              <SelectTrigger className="h-8 w-auto border-none bg-[#2a2a2a] px-3 text-xs text-white">
+                <SelectValue placeholder="Select model" />
+              </SelectTrigger>
+              <SelectContent className="border border-[#333] bg-[#1a1a1a] text-white">
+                {AVAILABLE_MODELS.map(model => (
+                  <SelectItem
+                    key={model.id}
+                    value={model.id}
+                    className="cursor-pointer text-xs hover:bg-[#2a2a2a]"
+                    disabled={isUsingDefaultKey && model.id !== DEFAULT_MODEL}
+                  >
+                    {model.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowApiKeyDialog(true)}
-            className="text-white/60 hover:bg-white/10 hover:text-white"
-          >
-            <Key className="h-4 w-4" />
-            Own key
-          </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowApiKeyDialog(true)}
+              className="h-8 gap-1 px-2 text-xs text-white/60 hover:bg-white/10 hover:text-white"
+            >
+              <Key className="h-3 w-3" />
+              <span>Or use your key</span>
+            </Button>
+          </div>
+
+          {/* Right side controls */}
+          <div className="flex items-center gap-2">
+            <Select value={selectedNiche} onValueChange={handleNicheChange} disabled={isAnalyzing}>
+              <SelectTrigger
+                id="niche-select-bottom"
+                className="h-8 w-auto border-none bg-[#2a2a2a] px-3 text-xs text-white placeholder:text-gray-400 focus:ring-0"
+                aria-label="Choose a niche"
+              >
+                <SelectValue placeholder="Choose a niche" />
+              </SelectTrigger>
+              <SelectContent className="border border-[#333] bg-[#1a1a1a] text-white">
+                {NICHES.map(niche => (
+                  <SelectItem
+                    key={niche}
+                    value={niche}
+                    className="cursor-pointer text-xs hover:bg-[#2a2a2a]"
+                  >
+                    {niche}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {/* Inspiration Icon Button */}
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={onShowInspiration}
+              className="relative h-8 w-8 shrink-0 overflow-hidden border-0 bg-[#2a2a2a] p-[1px] text-white/60 hover:bg-white/10 hover:text-white focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none"
+              aria-label="Show Inspiration Library"
+              disabled={isAnalyzing}
+            >
+              <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
+              <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-sm bg-[#2a2a2a] px-3 py-1 text-sm font-medium backdrop-blur-3xl">
+                <Sparkles className="h-4 w-4" />
+              </span>
+            </Button>
+            {/* Analyze Button */}
+            <Button
+              onClick={() => handleAnalyze(content)}
+              disabled={!content.trim() || isAnalyzing}
+              variant="secondary"
+              size="icon"
+              className="group h-8 w-8 cursor-pointer"
+            >
+              {isAnalyzing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <ArrowUp className="h-4 w-4 transition-transform group-hover:-translate-y-0.5" />
+              )}
+            </Button>
+          </div>
         </div>
-        <Button
-          onClick={() => handleAnalyze(content)}
-          disabled={!content.trim() || isAnalyzing}
-          variant="secondary"
-          size="icon"
-          className="group cursor-pointer"
-        >
-          {isAnalyzing ? (
-            <Loader2 className="size-5 animate-spin stroke-3" />
-          ) : (
-            <ArrowUp className="size-4 stroke-3 transition-transform group-hover:-translate-y-0.5" />
-          )}
-        </Button>
       </div>
     </motion.div>
   );

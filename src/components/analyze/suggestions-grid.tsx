@@ -116,7 +116,12 @@ export function SuggestionsGrid({
 
               {/* Post Content */}
               <div>
-                <p className="mb-4 text-[15px] leading-normal text-white/90">{suggestion.text}</p>
+                <p
+                  className="mb-4 text-[15px] leading-normal text-white/90"
+                  dangerouslySetInnerHTML={{
+                    __html: suggestion.text,
+                  }}
+                ></p>
 
                 {/* Post Metadata */}
                 <div className="mb-4 text-sm text-gray-500">
