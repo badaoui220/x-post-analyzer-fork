@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect, useTransition } from 'react';
+import { useDebounce } from '@/hooks/use-debounce';
+import { Input } from '@/components/ui/input';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -32,17 +34,39 @@ interface InspirationDialogProps {
   niches: readonly string[]; // Pass available niches from AnalyzeForm
 }
 
+// Define the mapping here for clarity
+const nicheToTopics: Record<string, string[]> = {
+  Tech: ['Startup', 'SaaS', 'AI', 'Programming', 'Developer'],
+  Marketing: ['Marketing', 'SEO', 'Audience building', 'Digital Marketing'],
+  SaaS: ['SaaS', 'Startup', 'MRR', 'Productivity'],
+  Creator: [
+    'build in public',
+    'indiehackers',
+    'productivity',
+    'vibe coding',
+    'coding',
+    'developer',
+  ],
+  Writing: ['Copywriting', 'Content Marketing', 'Blogging', 'Freelancing'],
+  'E-commerce': ['E-commerce', 'Retail'],
+  Finance: ['Finance', 'Investment', 'Personal Finance', 'Stocks', 'Cryptocurrency'],
+  General: ['Startup', 'Marketing', 'Productivity', 'Personal Branding'], // Default/fallback
+};
+
 export function InspirationDialog({
   open,
   onClose,
   onExampleSelect,
   initialNiche = 'General',
-  initialGoal = '', // Default to no goal selected initially
-  niches,
+  initialGoal = '',
+  niches, // Keep receiving the list of allowed niches
 }: InspirationDialogProps) {
   const [selectedNiche, setSelectedNiche] = useState(initialNiche);
+  // selectedGoal state is kept for context but not used for API query directly anymore
   const [selectedGoal, setSelectedGoal] = useState(initialGoal);
   const [examples, setExamples] = useState<InspirationExample[]>([]);
+  const [usernameQuery, setUsernameQuery] = useState('');
+  const debouncedUsernameQuery = useDebounce(usernameQuery, 1000);
   const [isPending, startTransition] = useTransition();
 
   // Reset filters when dialog opens based on initial props
@@ -50,21 +74,49 @@ export function InspirationDialog({
     if (open) {
       setSelectedNiche(initialNiche);
       setSelectedGoal(initialGoal);
+      setUsernameQuery('');
     }
   }, [open, initialNiche, initialGoal]);
 
-  // Fetch examples when filters change or dialog opens
+  // Fetch examples based on username OR niche filter
   useEffect(() => {
     if (open) {
+      let searchQuery = '';
+      let nicheForContext = selectedNiche; // Keep track of the selected niche for context
+
+      // Prioritize username search
+      if (debouncedUsernameQuery && debouncedUsernameQuery.trim()) {
+        searchQuery = `@${debouncedUsernameQuery.trim().replace('@', '')}`;
+        // Optionally reset niche display when username is searched, or keep it for context
+        // setSelectedNiche('General'); // Example: Reset niche visually if desired
+        nicheForContext = 'Username Search'; // Indicate context is different
+      } else {
+        // Fallback to niche search
+        const topics = nicheToTopics[selectedNiche] || nicheToTopics['General'];
+        searchQuery = topics.join(',');
+        nicheForContext = selectedNiche; // Context is the selected niche
+      }
+
+      if (!searchQuery) return; // Don't fetch if query is empty
+
       startTransition(async () => {
-        const fetchedExamples = await getInspirationExamples(selectedNiche, selectedGoal || null);
+        const fetchedExamples = await getInspirationExamples(searchQuery, nicheForContext);
         setExamples(fetchedExamples);
       });
     }
-  }, [open, selectedNiche, selectedGoal]);
+  }, [open, selectedNiche, selectedGoal, debouncedUsernameQuery]); // Include selectedGoal if it affects context
 
-  const handleNicheChange = (niche: string) => {
+  // When niche changes, clear username search to avoid confusion
+  const handleNicheValueChange = (niche: string) => {
     setSelectedNiche(niche);
+    setUsernameQuery(''); // Clear username when niche is explicitly selected
+  };
+
+  // When username input changes, maybe clear niche selection visually?
+  // Or just let the useEffect logic prioritize username input.
+  const handleUsernameInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUsernameQuery(e.target.value);
+    // Optionally: setSelectedNiche('General'); // If you want to reset niche dropdown display
   };
 
   // Handler to be passed to InspirationCard
@@ -87,7 +139,11 @@ export function InspirationDialog({
             <Label htmlFor="niche-filter" className="mb-2 block text-sm font-medium text-white/60">
               Filter by Niche
             </Label>
-            <Select value={selectedNiche} onValueChange={handleNicheChange} disabled={isPending}>
+            <Select
+              value={selectedNiche}
+              onValueChange={handleNicheValueChange}
+              disabled={isPending}
+            >
               <SelectTrigger
                 id="niche-filter"
                 className="w-full border-0 bg-[#2a2a2a] text-white placeholder:text-gray-500 focus:ring-1 focus:ring-white/20"
@@ -95,7 +151,6 @@ export function InspirationDialog({
                 <SelectValue placeholder="Select niche" />
               </SelectTrigger>
               <SelectContent className="border border-[#333] bg-[#1a1a1a] text-white">
-                {/* Include 'General' if it's in your main NICHES array */}
                 {niches.map(niche => (
                   <SelectItem
                     key={niche}
@@ -107,6 +162,25 @@ export function InspirationDialog({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Username Search Input */}
+          <div>
+            <Label
+              htmlFor="username-search"
+              className="mb-2 block text-sm font-medium text-white/60"
+            >
+              OR Search by Username (@)
+            </Label>
+            <Input
+              id="username-search"
+              type="text"
+              placeholder="e.g., johndoe (without @)"
+              value={usernameQuery}
+              onChange={handleUsernameInputChange}
+              className="w-full border-0 bg-[#2a2a2a] text-white placeholder:text-gray-500 focus:ring-1 focus:ring-white/20"
+              disabled={isPending}
+            />
           </div>
         </div>
 
