@@ -6,7 +6,6 @@ import { unstable_cache as nextCache } from 'next/cache';
 export interface InspirationExample {
   id: string; // Tweet ID (from tweetbutler response)
   niche: string; // Niche used for search (passed context)
-  goal: string; // Goal used for search (passed context)
   text: string; // Tweet text (full_text from tweetbutler)
   userName?: string; // From tweetbutler user object
   userHandle?: string; // From tweetbutler user object (username)
@@ -82,7 +81,7 @@ interface THResponse {
 
 const TH_API_URL = process.env.TH_API_URL;
 
-async function fetchTweetsFromTHImpl(topics: string): Promise<THResponse> {
+async function fetchTweetsFromTHImpl(query: string): Promise<THResponse> {
   // --- SECURITY WARNING ---
   // These tokens MUST be set via environment variables
   const bearerToken = process.env.TH_BEARER_TOKEN;
@@ -99,20 +98,25 @@ async function fetchTweetsFromTHImpl(topics: string): Promise<THResponse> {
 
   // Construct query parameters based on the example
   const params = new URLSearchParams({
-    topic: topics, // Use the combined topics string
-    count: '20', // Fetch a reasonable number, filter/sort later if needed
+    topic: query, // Use the generic query string directly
+    count: '10',
     randomize: 'true',
-    // description: '', // Keep description simple or omit if not essential
+    description: '',
     userId: userId,
     noHashtag: 'true',
     isPersonalizedSorting: 'true',
-    // Pass through required tokens/identifiers from env vars
+    useBestAi: 'false',
+    twClientId: 'undefined',
+    twClientSecret: 'undefined',
     twAccessToken: accessToken,
     twSecretToken: secretToken,
-    // These seem app-specific, might need env vars too if they change
     thApp: 'T_TWEETHUTLERBOT_AUTO_REPLY',
     app: 'T_TWEETHUTLERBOT_AUTO_REPLY',
-    tokenType: 'read', // As seen in example
+    tokenType: 'read',
+    nbMinDaysOld: '30',
+    nbMaxDaysOld: '1000',
+    nbMinLikes: '90',
+    nbMinRt: '0',
   });
 
   const fullUrl = `${TH_API_URL}?${params.toString()}`;
@@ -124,14 +128,16 @@ async function fetchTweetsFromTHImpl(topics: string): Promise<THResponse> {
         Authorization: `Bearer ${bearerToken}`,
         Accept: '*/*',
         'Content-Type': 'application/json',
-        // Add other headers from example if necessary (Origin, Referer, etc.)
-        // BUT be cautious, making it too specific can break if the source changes.
-        // 'Origin': 'https://app.tweethunter.io', // Likely not needed/risky
-        // 'Referer': 'https://app.tweethunter.io/', // Likely not needed/risky
-        tokenuserid: userId, // Custom header from example
+        Origin: 'https://app.tweethunter.io',
+        Referer: 'https://app.tweethunter.io/',
+        Priority: 'u=3, i',
+        'Sec-Fetch-Mode': 'cors',
+        'Sec-Fetch-Site': 'cross-site',
+        tokenuserid: userId,
+        'User-Agent':
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3 Safari/605.1.15',
       },
-      // Apply caching strategy similar to the previous one
-      next: { revalidate: 960 }, // Cache for 16 minutes
+      next: { revalidate: 960 },
     });
 
     const data: THResponse = await response.json();
@@ -141,7 +147,9 @@ async function fetchTweetsFromTHImpl(topics: string): Promise<THResponse> {
         `TH API Error (${response.status}): ${data.error || 'Unknown error'}`,
         JSON.stringify(data)
       );
-      const error = new Error(`Failed to fetch tweets from TH API. Status: ${response.status}`);
+      const error = new Error(
+        `Failed to fetch tweets from API. Status: ${response.status}, Query: ${query}`
+      );
       (error as Error & { responseBody?: unknown }).responseBody = data;
       throw error;
     }
@@ -158,8 +166,8 @@ async function fetchTweetsFromTHImpl(topics: string): Promise<THResponse> {
 
 // Wrap the fetch function with Next.js cache
 const fetchTweetsFromTH = nextCache(
-  fetchTweetsFromTHImpl,
-  ['tweetbutler-api-tweets'], // Unique cache key segment
+  fetchTweetsFromTHImpl, // Pass the function directly
+  ['th-api-tweets'], // Updated base cache key segment for safety
   {
     revalidate: 960, // Cache duration: 16 minutes
     tags: ['inspiration-tweets-tb'], // Unique tag
@@ -168,77 +176,35 @@ const fetchTweetsFromTH = nextCache(
 
 // --- Main Action Function ---
 export async function getInspirationExamples(
-  niche: string | null,
-  goal: string | null
+  searchQuery: string, // Accept the pre-formatted query
+  nicheContext?: string | null
 ): Promise<InspirationExample[]> {
   try {
-    // Define topics based on niche - map to TH's comma-separated format
-    let topics: string[] = [];
-    switch (niche) {
-      case 'Tech':
-        topics = ['Startup', 'SaaS', 'AI', 'Programming', 'Developer'];
-        break;
-      case 'Marketing':
-        topics = ['Marketing', 'SEO', 'Audience building', 'Digital Marketing'];
-        break;
-      case 'SaaS':
-        topics = ['SaaS', 'Startup', 'MRR', 'Productivity'];
-        break;
-      case 'Creator':
-        topics = [
-          'build in public',
-          'indiehackers',
-          'productivity',
-          'vibe coding',
-          'coding',
-          'developer',
-        ];
-        break;
-      case 'Writing':
-        topics = ['Copywriting', 'Content Marketing', 'Blogging', 'Freelancing'];
-        break;
-      case 'E-commerce':
-        topics = ['E-commerce', 'Retail'];
-        break;
-      case 'Finance':
-        topics = ['Finance', 'Investment', 'Personal Finance', 'Stocks', 'Cryptocurrency'];
-        break;
-      default:
-        topics = ['Startup', 'Marketing', 'Productivity', 'Personal Branding'];
-        break;
-    }
-    const topicsQueryParam = topics.join(',');
+    const apiResponse = await fetchTweetsFromTH(searchQuery);
 
-    const apiResponse = await fetchTweetsFromTH(topicsQueryParam);
+    const tweets = apiResponse.tweets ?? [];
 
-    const butlerTweets = apiResponse.tweets ?? [];
-
-    if (butlerTweets.length === 0) {
-      console.log('No posts for topics:', topicsQueryParam);
+    if (tweets.length === 0) {
+      console.log('No posts for query:', searchQuery);
       return [];
     }
 
-    const examples: InspirationExample[] = butlerTweets
-      // Add filtering here if needed (e.g., only tweets with metrics)
+    const examples: InspirationExample[] = tweets
       .map(tweet => {
-        // Extract media info from the first media item, if available
         const firstMedia = tweet.extended_entities?.media?.[0];
         const mediaUrl = firstMedia?.media_url_https;
-        // Ensure the type is one of the allowed literals
         const mediaType =
           firstMedia?.type && ['photo', 'video', 'animated_gif'].includes(firstMedia.type)
             ? (firstMedia.type as 'photo' | 'video' | 'animated_gif')
             : undefined;
 
         return {
-          id: tweet.id_str || tweet.id, // Prefer id_str if available
-          niche: niche || 'General',
-          goal: goal || 'Unknown',
-          text: tweet.full_text || tweet.text, // Prefer full_text
+          id: tweet.id_str || tweet.id,
+          niche: nicheContext || 'General',
+          text: tweet.full_text || tweet.text,
           userName: tweet.user?.name,
-          userHandle: tweet.user?.username || tweet.user?.screen_name, // Prefer username
+          userHandle: tweet.user?.username || tweet.user?.screen_name,
           userAvatarUrl: tweet.user?.profile_image_url_https,
-          // Determine verified status (might need adjustment based on API)
           userVerified: tweet.user?.verified || tweet.user?.verified_type === 'blue',
           createdAt: tweet.created_at,
           metrics: {
@@ -246,16 +212,15 @@ export async function getInspirationExamples(
             reply_count: tweet.public_metrics?.reply_count ?? 0,
             like_count: tweet.public_metrics?.like_count ?? 0,
             quote_count: tweet.public_metrics?.quote_count ?? 0,
-            bookmark_count: tweet.public_metrics?.bookmark_count, // Optional
-            impression_count: tweet.public_metrics?.impression_count, // Optional
+            bookmark_count: tweet.public_metrics?.bookmark_count,
+            impression_count: tweet.public_metrics?.impression_count,
           },
           mediaUrl: mediaUrl,
           mediaType: mediaType,
         };
       })
-      // Add sorting if needed (API has randomize=true, so maybe sort by likes/retweets?)
       .sort((a, b) => (b.metrics?.like_count ?? 0) - (a.metrics?.like_count ?? 0))
-      .slice(0, 10); // Limit to 10 results after potential sorting
+      .slice(0, 10);
 
     return examples;
   } catch (error) {

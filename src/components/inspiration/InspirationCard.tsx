@@ -42,8 +42,8 @@ const formatTweetDate = (dateString: string | undefined): string | null => {
 const renderTextWithLinksHidden = (text: string): string => {
   // Simple regex to find URLs (http/https)
   const urlRegex = /(https?:\/\/[^\s]+)/g;
-  // Replace URLs with [link hidden] - you could also just remove them ('')
-  return text.replace(urlRegex, '[link hidden]');
+  // Replace URLs with '' - you could also just remove them ('')
+  return text.replace(urlRegex, '');
 };
 
 const extractLink = (text: string): string | null => {
