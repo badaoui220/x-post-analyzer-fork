@@ -15,12 +15,12 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { ArrowUp, Loader2, Key, Sparkles, Copy } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { AVAILABLE_MODELS, DEFAULT_MODEL } from '@/config/openai';
+import { AVAILABLE_MODELS, DEFAULT_MODEL, DEFAULT_API_KEY } from '@/config/openai';
 import { getViralRewrite } from '@/actions/viralRewrite';
 import Cookies from 'js-cookie';
 import { toast } from 'sonner';
-import { DEFAULT_API_KEY } from '@/config/openai';
 import ReactMarkdown from 'react-markdown';
+import type { Components } from 'react-markdown';
 
 // Constants passed as props or defined here if static
 // const NICHES = [...];
@@ -40,6 +40,18 @@ interface UsageData {
   timestamp: number;
 }
 // --- End Types ---
+
+// --- Custom Markdown Components with Tailwind Styling ---
+const markdownComponents: Components = {
+  p: ({ ...props }) => <p className="" {...props} />,
+  a: ({ ...props }) => <a className="text-blue-400 underline hover:text-blue-300" {...props} />,
+  ul: ({ ...props }) => <ul className="list-inside list-disc pl-4" {...props} />,
+  ol: ({ ...props }) => <ol className="list-inside list-decimal pl-4" {...props} />,
+  li: ({ ...props }) => <li className="" {...props} />,
+  strong: ({ ...props }) => <strong className="font-semibold" {...props} />,
+  // Add more custom components here for headings, code blocks, etc. if needed
+};
+// --- End Custom Markdown Components ---
 
 // --- Viral Styles Definition ---
 const VIRAL_STYLES = [
@@ -166,6 +178,7 @@ export function InputSection({
   const [selectedViralStyle, setSelectedViralStyle] = useState<string>('');
   const [isRewriting, setIsRewriting] = useState(false);
   const [rewriteResult, setRewriteResult] = useState<string | null>(null);
+  const [limitRewriteTo280, setLimitRewriteTo280] = useState<boolean>(false);
 
   // Clear rewrite result if main content changes
   useEffect(() => {
@@ -219,7 +232,7 @@ export function InputSection({
   // --- End Rate Limiting Helpers ---
 
   const constructViralPrompt = (styleName: string, draft: string): string => {
-    return `Act like you're a top-tier X (formerly Twitter) growth strategist whose posts consistently go viral, pulling in millions of views, replies, and reposts. You deeply understand the X algorithm, how it prioritizes engagement, and how to engineer posts to trigger curiosity, emotion, and conversation.
+    const basePrompt = `Act like you're a top-tier X (formerly Twitter) growth strategist whose posts consistently go viral, pulling in millions of views, replies, and reposts. You deeply understand the X algorithm, how it prioritizes engagement, and how to engineer posts to trigger curiosity, emotion, and conversation.
 
 Based on the draft post I'll provide, rewrite it using the style: ${styleName}
 
@@ -230,8 +243,15 @@ Optimize it for:
 - Clear structure with optional emojis(max 3), bullets, or visuals
 - Ending with a strong CTA
 - Without hashtags
+- No hashtags
 
-Add anything else that helps break the algorithm and boost engagement.
+Add anything else that helps break the algorithm and boost engagement.`;
+
+    const lengthConstraint = limitRewriteTo280
+      ? '\n\nIMPORTANT: The final rewritten post MUST be 280 characters or less.'
+      : '';
+
+    return `${basePrompt}${lengthConstraint}
 
 Here's my draft:
 ${draft}`;
@@ -506,7 +526,9 @@ ${draft}`;
             {/* Display description using ReactMarkdown */}
             {selectedViralStyle && selectedStyleDescription && (
               <div className="prose prose-sm prose-invert max-w-none px-1 text-xs text-white/60">
-                <ReactMarkdown>{selectedStyleDescription}</ReactMarkdown>
+                <ReactMarkdown components={markdownComponents}>
+                  {selectedStyleDescription}
+                </ReactMarkdown>
               </div>
             )}
           </div>
@@ -528,6 +550,20 @@ ${draft}`;
           </Button>
         </div>
 
+        {/* Character Limit Switch */}
+        <div className="flex items-center justify-start space-x-2 pt-1 pl-1">
+          <Switch
+            id="limit-chars-switch"
+            checked={limitRewriteTo280}
+            onCheckedChange={setLimitRewriteTo280}
+            disabled={isRewriting || isAnalyzing}
+            aria-label="Limit rewrite to 280 characters"
+          />
+          <Label htmlFor="limit-chars-switch" className="text-xs font-medium text-white/60">
+            Limit rewrite to 280 characters (for non-X Premium)
+          </Label>
+        </div>
+
         {rewriteResult && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
@@ -537,8 +573,8 @@ ${draft}`;
             className="mt-3 space-y-2 rounded-lg border border-purple-500/30 bg-[#2a2a2a]/30 p-4 shadow-inner"
           >
             <Label className="text-xs font-medium text-purple-300/80">Rewrite Suggestion:</Label>
-            <div className="text-sm whitespace-pre-wrap text-white/90">
-              <ReactMarkdown>{rewriteResult}</ReactMarkdown>
+            <div className="prose prose-sm prose-invert max-w-none text-sm whitespace-pre-wrap text-white/90">
+              <ReactMarkdown components={markdownComponents}>{rewriteResult}</ReactMarkdown>
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <Button
