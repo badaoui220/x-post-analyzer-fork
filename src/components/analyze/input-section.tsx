@@ -21,6 +21,7 @@ import Cookies from 'js-cookie';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
 import type { Components } from 'react-markdown';
+import { PostPreviewSpot } from '../spots/post-preview-spot';
 
 // Constants passed as props or defined here if static
 // const NICHES = [...];
@@ -151,6 +152,14 @@ const slideUp = {
   animate: { opacity: 1, y: 0 },
   exit: { opacity: 0, y: -50 },
   transition: { duration: 0.5 },
+};
+
+const analysis = {
+  scores: {
+    engagement: 10,
+    friendliness: 20,
+    virality: 30,
+  },
 };
 
 export function InputSection({
@@ -320,9 +329,9 @@ ${draft}`;
   )?.description;
 
   return (
-    <motion.div key="input" className="relative mx-auto w-full max-w-2xl space-y-4" {...slideUp}>
+    <motion.div key="input" className="relative mx-auto w-full max-w-6xl space-y-4" {...slideUp}>
       {/* Combined Goal Select and Visual Switch Row */}
-      <div className="flex items-end justify-between gap-4">
+      <div className="mx-auto flex max-w-2xl items-end justify-between gap-4">
         <div className="flex flex-col">
           <Label htmlFor="goal-select" className="mb-2 block text-sm font-medium text-white/60">
             Primary Goal
@@ -365,7 +374,7 @@ ${draft}`;
       {/* Removed Niche Select from here */}
       {/* Removed full-width Inspiration Button from here */}
 
-      <div className="relative">
+      <div className="relative mx-auto max-w-2xl">
         <Textarea
           placeholder="What's on your mind? Paste or type your X post here..."
           value={content}
@@ -497,7 +506,7 @@ ${draft}`;
       </div>
 
       {/* Viral Rewrite Section */}
-      <div className="space-y-3 border-t border-white/10 pt-4">
+      <div className="mx-auto max-w-2xl space-y-3 border-t border-white/10 pt-4">
         <div className="grid grid-cols-[1fr_auto] items-start gap-3">
           <div className="space-y-1.5">
             <Select
@@ -597,6 +606,11 @@ ${draft}`;
             </div>
           </motion.div>
         )}
+      </div>
+      <div className="grid gap-3 pt-10 md:grid-cols-3">
+        <PostPreviewSpot id="spot-analysis-bottom-1" content={content} scores={analysis.scores} />
+        <PostPreviewSpot id="spot-analysis-bottom-2" content={content} scores={analysis.scores} />
+        <PostPreviewSpot id="spot-analysis-bottom-3" content={content} scores={analysis.scores} />
       </div>
     </motion.div>
   );
