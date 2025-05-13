@@ -72,7 +72,7 @@ export function PostPreviewSpot({ id, content, scores, className }: PostPreviewS
       animate={{ opacity: 1, y: 0 }}
       className={cn('w-full overflow-hidden rounded-none bg-black p-3', className)}
     >
-      <div className="flex gap-3">
+      <div className="flex h-full gap-3">
         {/* Profile Picture */}
         {spot.available ? (
           <Link
@@ -114,7 +114,7 @@ export function PostPreviewSpot({ id, content, scores, className }: PostPreviewS
         )}
 
         {/* Content */}
-        <div className="min-w-0 flex-1">
+        <div className="flex h-full min-w-0 flex-col justify-between">
           {/* Username and Handle */}
           <div className="flex items-center justify-between gap-2">
             {spot.available ? (
