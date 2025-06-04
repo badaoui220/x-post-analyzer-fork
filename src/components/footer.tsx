@@ -20,7 +20,7 @@ export function Footer() {
           </div>
           <div className="flex items-center gap-6 text-sm text-white/60">
             <Link
-              href="https://www.synapy.app"
+              href="https://www.synapt.app"
               className="underline transition-colors hover:text-white"
               target="_blank"
             >
